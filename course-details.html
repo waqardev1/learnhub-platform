@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Details - LearnHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .course-header {
+            background: linear-gradient(135deg, var(--dark-bg), #1e293b);
+            color: white;
+            padding: 4rem 0 6rem;
+            position: relative;
+            margin-bottom: -3rem;
+        }
+
+        .course-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="2" fill="rgba(255,255,255,0.05)"/></svg>');
+            opacity: 0.5;
+        }
+
+        .breadcrumb-item a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #e2e8f0;
+        }
+
+        .sticky-enroll-card {
+            position: sticky;
+            top: 100px;
+            z-index: 10;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: var(--dark-bg);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .feature-list li {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-color);
+        }
+
+        .feature-list i {
+            color: #10b981;
+            /* Green 500 */
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="bi bi-mortarboard-fill me-2"></i>LearnHub</a>
+            <div class="ms-auto">
+                <a class="btn btn-outline-primary" href="portal/login.html">Student Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Header -->
+    <header class="course-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-4">
+                            <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                            <li class="breadcrumb-item"><a href="index.html#courses">Courses</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Details</li>
+                        </ol>
+                    </nav>
+                    <h1 class="display-4 fw-bold mb-3" id="courseTitle">Loading...</h1>
+                    <p class="lead text-light opacity-75 mb-4" id="courseDescription"></p>
+                    <div class="d-flex gap-4 text-light opacity-75 small">
+                        <span><i class="bi bi-clock me-2"></i><span id="courseDurationHeader">Duration</span></span>
+                        <span><i class="bi bi-globe me-2"></i>Online</span>
+                        <span><i class="bi bi-translate me-2"></i>English</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Course Outline Section -->
+                <div class="mb-5">
+                    <h3 class="section-title"><i class="bi bi-journal-richtext"></i> Course Curriculum</h3>
+                    <div id="courseOutline">
+                        <!-- Dynamic Content -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roadmap Section -->
+                <div class="mb-5">
+                    <h3 class="section-title"><i class="bi bi-map"></i> Learning Journey</h3>
+                    <div id="courseRoadmap">
+                        <!-- Dynamic Content -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg sticky-enroll-card">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">Enroll in this Course</h4>
+
+                        <div class="d-grid gap-2 mb-4">
+                            <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">
+                                Register Interest
+                            </button>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">This course includes:</h6>
+                        <ul class="list-unstyled feature-list mb-0">
+                            <li><i class="bi bi-check-circle-fill"></i> <span id="courseDurationSide"></span> Duration
+                            </li>
+                            <li><i class="bi bi-check-circle-fill"></i> Live Google Meet Classes</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Recorded Video Access</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Downloadable Resources</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Certificate of Completion</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Join the Waitlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Submit your details below. We will review your request and send you login
+                        credentials.</p>
+                    <form id="registrationForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Full Name</label>
+                            <input type="text" class="form-control form-control-lg" id="regName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Email Address</label>
+                            <input type="email" class="form-control form-control-lg" id="regEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Phone Number</label>
+                            <input type="tel" class="form-control form-control-lg" id="regPhone" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-2">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-body">
+                    <div
+                        style="width: 80px; height: 80px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem;">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Request Received!</h3>
+                    <p class="text-muted mb-4">Thank you! We have received your request and will contact you shortly.
+                    </p>
+                    <button type="button" class="btn btn-primary px-5" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('id');
+
+        if (!courseId) window.location.href = 'index.html';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: course, error } = await window.sb
+                .from('courses')
+                .select('*')
+                .eq('id', courseId)
+                .single();
+
+            if (error) {
+                document.body.innerHTML = '<div class="container py-5"><div class="alert alert-danger">Course not found.</div></div>';
+                return;
+            }
+
+            document.title = `${course.title} - LearnHub`;
+            document.getElementById('courseTitle').innerText = course.title;
+            document.getElementById('courseDescription').innerText = course.description;
+
+            // Render Outline
+            renderOutline(course.outline);
+
+            // Render Roadmap
+            renderRoadmap(course.roadmap);
+
+            const duration = course.duration || 'Self-paced';
+            document.getElementById('courseDurationHeader').innerText = duration;
+            document.getElementById('courseDurationSide').innerText = duration;
+        });
+
+        function renderOutline(text) {
+            const container = document.getElementById('courseOutline');
+            if (!text) {
+                container.innerHTML = '<div class="alert alert-light">No outline available.</div>';
+                return;
+            }
+
+            const lines = text.split('\n').filter(l => l.trim());
+            let html = '<div class="curriculum-container">';
+            let currentModule = null;
+            let moduleIndex = 0;
+
+            lines.forEach((line) => {
+                const trimmed = line.trim();
+                // Heuristic: Lines ending in ':' or starting with "Week/Module" are headers
+                if (trimmed.endsWith(':') || /^(Week|Module|Section|Chapter)\s+\d+/i.test(trimmed)) {
+                    // Close previous module
+                    if (currentModule) {
+                        html += `
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+
+                    moduleIndex++;
+                    const title = trimmed.replace(':', '');
+                    currentModule = title;
+
+                    html += `
+                        <div class="curriculum-card">
+                            <div class="curriculum-header" data-bs-toggle="collapse" data-bs-target="#module${moduleIndex}">
+                                <div>
+                                    <h6 class="curriculum-title">${title}</h6>
+                                </div>
+                                <i class="bi bi-chevron-down text-muted"></i>
+                            </div>
+                            <div id="module${moduleIndex}" class="collapse ${moduleIndex === 1 ? 'show' : ''}">
+                                <div class="curriculum-body">`;
+                } else {
+                    // Content line
+                    // If no module started yet, create a default one
+                    if (!currentModule) {
+                        moduleIndex++;
+                        currentModule = "Course Introduction";
+                        html += `
+                        <div class="curriculum-card">
+                            <div class="curriculum-header" data-bs-toggle="collapse" data-bs-target="#module${moduleIndex}">
+                                <h6 class="curriculum-title">Course Introduction</h6>
+                                <i class="bi bi-chevron-down text-muted"></i>
+                            </div>
+                            <div id="module${moduleIndex}" class="collapse show">
+                                <div class="curriculum-body">`;
+                    }
+
+                    html += `
+                        <div class="lesson-item">
+                            <i class="bi bi-play-circle-fill lesson-icon"></i>
+                            <span>${trimmed.replace(/^[-*]\s*/, '')}</span>
+                        </div>`;
+                }
+            });
+
+            // Close final module
+            if (currentModule) {
+                html += `
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderRoadmap(text) {
+            const container = document.getElementById('courseRoadmap');
+            if (!text) {
+                container.innerHTML = '<div class="alert alert-light">No roadmap available.</div>';
+                return;
+            }
+
+            const lines = text.split('\n').filter(l => l.trim());
+            let html = '<div class="roadmap-container"><div class="roadmap-line"></div>';
+
+            lines.forEach((line, index) => {
+                const trimmed = line.trim().replace(/^[-*]\s*/, '');
+                let title = trimmed;
+                let desc = '';
+
+                if (trimmed.includes(':')) {
+                    const parts = trimmed.split(':');
+                    title = parts[0].trim();
+                    desc = parts.slice(1).join(':').trim();
+                }
+
+                html += `
+                    <div class="roadmap-step">
+                        <div class="roadmap-marker">${index + 1}</div>
+                        <div class="roadmap-content">
+                            <h5 class="roadmap-title">${title}</h5>
+                            ${desc ? `<p class="text-muted mb-0 small">${desc}</p>` : ''}
+                        </div>
+                    </div>`;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function openRegisterModal() {
+            new bootstrap.Modal(document.getElementById('registerModal')).show();
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            const formData = {
+                full_name: document.getElementById('regName').value,
+                email: document.getElementById('regEmail').value,
+                phone: document.getElementById('regPhone').value,
+                course_id: courseId,
+                status: 'pending'
+            };
+
+            const { error } = await window.sb.from('requests').insert([formData]);
+
+            if (error) {
+                alert('Error submitting request: ' + error.message);
+            } else {
+                bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                e.target.reset();
+                new bootstrap.Modal(document.getElementById('successModal')).show();
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Request';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests - LearnHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="admin-navbar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <a class="navbar-brand" href="dashboard.html">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>LearnHub Admin</span>
+        </a>
+        <div class="admin-navbar-end">
+            <div class="admin-user-info">
+                <i class="bi bi-person-circle"></i>
+                <span id="adminName">Administrator</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <nav class="admin-sidebar-nav">
+            <a href="dashboard.html" class="admin-nav-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="courses.html" class="admin-nav-item">
+                <i class="bi bi-book"></i>
+                <span>Courses</span>
+            </a>
+            <a href="requests.html" class="admin-nav-item active">
+                <i class="bi bi-envelope"></i>
+                <span>Requests</span>
+            </a>
+            <a href="students.html" class="admin-nav-item">
+                <i class="bi bi-people"></i>
+                <span>Students</span>
+            </a>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(226, 232, 240, 0.1);">
+                <a href="settings.html" class="admin-nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-page-header">
+            <h1 class="admin-page-title">Registration Requests</h1>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Course Interest</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="requestsTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Approve Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Approve Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Generating credentials for <strong id="approveName"></strong>...</p>
+                    <form id="approveForm">
+                        <input type="hidden" id="requestId">
+                        <input type="hidden" id="requestEmail">
+                        <input type="hidden" id="requestPhone">
+                        <input type="hidden" id="requestName">
+                        <input type="hidden" id="requestCourseId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Generated User ID</label>
+                            <input type="text" class="form-control" id="genUserId" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Generated Password</label>
+                            <input type="text" class="form-control" id="genPassword" readonly>
+                        </div>
+                        <div class="alert alert-info small">
+                            Note: Copy these credentials. You will need to send them to the student manually.
+                        </div>
+                        <button type="submit" class="btn btn-admin-primary w-100">Confirm & Create User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-body">
+                    <div
+                        style="width: 80px; height: 80px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem;">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Student Registered!</h3>
+                    <p class="text-muted mb-4">The student has been successfully registered and the request approved.
+                    </p>
+                    <button type="button" class="btn btn-admin-primary px-5" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/supabase-client.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script>
+        // Auth Check
+        const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+        if (!adminUser || adminUser.role !== 'admin') window.location.href = 'login.html';
+
+        if (adminUser && adminUser.full_name) {
+            document.getElementById('adminName').textContent = adminUser.full_name;
+        }
+
+        function logout() {
+            localStorage.removeItem('adminUser');
+            window.location.href = 'login.html';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        }
+
+        const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+
+        document.addEventListener('DOMContentLoaded', loadRequests);
+
+        async function loadRequests() {
+            const { data: requests, error } = await window.sb
+                .from('requests')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return alert('Error loading requests: ' + error.message);
+            }
+
+            const tbody = document.getElementById('requestsTableBody');
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No requests found</td></tr>';
+                return;
+            }
+
+            // Fetch course titles
+            const courseIds = [...new Set(requests.map(r => r.course_id).filter(id => id))];
+            let courseMap = {};
+
+            if (courseIds.length > 0) {
+                const { data: courses } = await window.sb.from('courses').select('id, title').in('id', courseIds);
+                if (courses) {
+                    courses.forEach(c => courseMap[c.id] = c.title);
+                }
+            }
+
+            tbody.innerHTML = requests.map(r => `
+                <tr>
+                    <td>${new Date(r.created_at).toLocaleDateString()}</td>
+                    <td><strong>${r.full_name}</strong></td>
+                    <td>${r.email}</td>
+                    <td>${r.phone}</td>
+                    <td>${courseMap[r.course_id] || 'Unknown Course'}</td>
+                    <td>
+                        <span class="badge-admin ${r.status === 'pending' ? 'warning' : (r.status === 'approved' ? 'success' : 'secondary')}">
+                            ${r.status.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>
+                        ${r.status === 'pending' ? `
+                            <button class="btn btn-admin-secondary btn-sm-admin me-1" onclick="openApproveModal('${r.id}', '${r.full_name}', '${r.email}', '${r.phone}', '${r.course_id}')" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #16a34a; border: none;">
+                                <i class="bi bi-check-lg me-1"></i>Approve
+                            </button>
+                            <button class="btn btn-admin-secondary btn-sm-admin" onclick="rejectRequest('${r.id}')" style="color: #dc2626;">
+                                <i class="bi bi-x-lg me-1"></i>Reject
+                            </button>
+                        ` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.openApproveModal = (id, name, email, phone, courseId) => {
+            document.getElementById('requestId').value = id;
+            document.getElementById('requestName').value = name;
+            document.getElementById('requestEmail').value = email;
+            document.getElementById('requestPhone').value = phone;
+            document.getElementById('requestCourseId').value = courseId;
+            document.getElementById('approveName').innerText = name;
+
+            // Generate Credentials
+            document.getElementById('genUserId').value = window.utils.generateStudentId();
+            document.getElementById('genPassword').value = window.utils.generatePassword();
+
+            approveModal.show();
+        }
+
+        document.getElementById('approveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            const userId = document.getElementById('genUserId').value;
+            const password = document.getElementById('genPassword').value;
+            const name = document.getElementById('requestName').value;
+            const email = document.getElementById('requestEmail').value;
+            const phone = document.getElementById('requestPhone').value;
+            const courseId = document.getElementById('requestCourseId').value;
+            const requestId = document.getElementById('requestId').value;
+
+            // Create User
+            const { error: userError } = await window.sb.from('users').insert([{
+                user_id: userId,
+                password: password,
+                full_name: name,
+                email: email,
+                phone: phone,
+                role: 'student',
+                enrolled_courses: [{
+                    course_id: courseId,
+                    progress: 0,
+                    last_accessed: new Date().toISOString()
+                }]
+            }]);
+
+            if (userError) {
+                alert('Error creating user: ' + userError.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Confirm & Create User';
+                return;
+            }
+
+            // Update Request status
+            const { error: reqError } = await window.sb
+                .from('requests')
+                .update({ status: 'approved' })
+                .eq('id', requestId);
+
+            if (reqError) {
+                alert('User created but failed to update request status.');
+            } else {
+                approveModal.hide();
+                successModal.show();
+                loadRequests();
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Confirm & Create User';
+        });
+
+        window.rejectRequest = async (id) => {
+            if (!confirm('Reject this request?')) return;
+            const { error } = await window.sb.from('requests').update({ status: 'rejected' }).eq('id', id);
+            if (error) alert('Error rejecting request');
+            else loadRequests();
+        }
+    </script>
+</body>
+
+</html>

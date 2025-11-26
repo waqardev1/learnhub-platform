@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - LearnHub Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="admin-navbar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <a class="navbar-brand" href="dashboard.html">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>LearnHub Admin</span>
+        </a>
+        <div class="admin-navbar-end">
+            <div class="admin-user-info">
+                <i class="bi bi-person-circle"></i>
+                <span id="adminName">Administrator</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <nav class="admin-sidebar-nav">
+            <a href="dashboard.html" class="admin-nav-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="courses.html" class="admin-nav-item">
+                <i class="bi bi-book"></i>
+                <span>Courses</span>
+            </a>
+            <a href="requests.html" class="admin-nav-item">
+                <i class="bi bi-envelope"></i>
+                <span>Requests</span>
+            </a>
+            <a href="students.html" class="admin-nav-item">
+                <i class="bi bi-people"></i>
+                <span>Students</span>
+            </a>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(226, 232, 240, 0.1);">
+                <a href="settings.html" class="admin-nav-item active">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-page-header">
+            <h1 class="admin-page-title">Settings</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <!-- Change Password Card -->
+                <div class="admin-table-container mb-4">
+                    <div class="p-4">
+                        <h5 class="mb-3" style="font-weight: 700; color: #1e293b;">
+                            <i class="bi bi-shield-lock me-2"></i>Change Password
+                        </h5>
+                        <p class="text-muted small mb-4">Update your admin account password. Make sure to use a strong
+                            password.</p>
+
+                        <form id="changePasswordForm">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword" required>
+                                <div class="invalid-feedback" id="currentPasswordError">
+                                    Current password is incorrect
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="6">
+                                <div class="form-text">Password must be at least 6 characters long</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                                <div class="invalid-feedback" id="confirmPasswordError">
+                                    Passwords do not match
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-admin-primary">
+                                <i class="bi bi-check-lg me-2"></i>Update Password
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Account Info Card -->
+                <div class="admin-table-container">
+                    <div class="p-4">
+                        <h5 class="mb-3" style="font-weight: 700; color: #1e293b;">
+                            <i class="bi bi-person-badge me-2"></i>Account Information
+                        </h5>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">User ID</label>
+                            <div class="p-3" style="background: #f8fafc; border-radius: 0.5rem;">
+                                <code id="adminUserId" style="color: #4f46e5; font-weight: 600;">-</code>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Full Name</label>
+                            <div class="p-3" style="background: #f8fafc; border-radius: 0.5rem;">
+                                <span id="adminFullName" style="font-weight: 500;">-</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Email</label>
+                            <div class="p-3" style="background: #f8fafc; border-radius: 0.5rem;">
+                                <span id="adminEmail" style="font-weight: 500;">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4">
+                <div class="modal-body">
+                    <div
+                        style="width: 80px; height: 80px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem;">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Password Updated!</h3>
+                    <p class="text-muted mb-4">Your password has been successfully changed.</p>
+                    <button type="button" class="btn btn-admin-primary px-5" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/supabase-client.js"></script>
+    <script>
+        // Auth Check
+        const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+        if (!adminUser || adminUser.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        // Display admin info
+        if (adminUser) {
+            document.getElementById('adminName').textContent = adminUser.full_name || 'Administrator';
+            document.getElementById('adminUserId').textContent = adminUser.user_id || '-';
+            document.getElementById('adminFullName').textContent = adminUser.full_name || '-';
+            document.getElementById('adminEmail').textContent = adminUser.email || '-';
+        }
+
+        function logout() {
+            localStorage.removeItem('adminUser');
+            window.location.href = 'login.html';
+        }
+
+        function toggleSidebar() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        }
+
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+
+        // Handle password change
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Reset validation states
+            document.getElementById('currentPassword').classList.remove('is-invalid');
+            document.getElementById('confirmPassword').classList.remove('is-invalid');
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate passwords match
+            if (newPassword !== confirmPassword) {
+                document.getElementById('confirmPassword').classList.add('is-invalid');
+                return;
+            }
+
+            // Validate current password
+            if (currentPassword !== adminUser.password) {
+                document.getElementById('currentPassword').classList.add('is-invalid');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+            try {
+                // Update password in database
+                const { error } = await window.sb
+                    .from('users')
+                    .update({ password: newPassword })
+                    .eq('id', adminUser.id);
+
+                if (error) throw error;
+
+                // Update localStorage
+                adminUser.password = newPassword;
+                localStorage.setItem('adminUser', JSON.stringify(adminUser));
+
+                // Reset form
+                e.target.reset();
+
+                // Show success modal
+                successModal.show();
+
+            } catch (error) {
+                alert('Error updating password: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Update Password';
+            }
+        });
+    </script>
+</body>
+
+</html>

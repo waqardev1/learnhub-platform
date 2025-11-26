@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="LearnHub - Master new skills with expert-led online courses in programming, design, and business">
+    <title>LearnHub - Master New Skills Online</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Design System -->
+    <link rel="stylesheet" href="assets/css/design-system.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* Additional styles for enhanced navbar */
+        .search-container {
+            position: relative;
+        }
+
+        .search-container input {
+            padding-left: 2.5rem;
+            min-width: 250px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-neutral-400);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--color-primary-500);
+            top: 10%;
+            left: 10%;
+        }
+
+        .glow-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--color-info-500);
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .tracking-wider {
+            letter-spacing: 0.05em;
+        }
+
+        .hover-white:hover {
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top" role="navigation" aria-label="Main navigation">
+        <div class="container">
+            <a class="navbar-brand" href="#" aria-label="LearnHub Home">
+                <i class="bi bi-mortarboard-fill me-2 text-primary" aria-hidden="true"></i>LearnHub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#courses">Explore Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About Us</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false" id="categoriesDropdown">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                            <li><a class="dropdown-item" href="#courses" data-category="programming">
+                                    <i class="bi bi-code-slash me-2"></i>Programming</a></li>
+                            <li><a class="dropdown-item" href="#courses" data-category="design">
+                                    <i class="bi bi-palette me-2"></i>Design</a></li>
+                            <li><a class="dropdown-item" href="#courses" data-category="business">
+                                    <i class="bi bi-briefcase me-2"></i>Business</a></li>
+                            <li><a class="dropdown-item" href="#courses" data-category="marketing">
+                                    <i class="bi bi-megaphone me-2"></i>Marketing</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="search-container d-none d-lg-block">
+                        <input type="search" class="form-control" id="courseSearch" placeholder="Search courses..."
+                            aria-label="Search courses">
+                        <i class="bi bi-search search-icon" aria-hidden="true"></i>
+                    </div>
+                    <button class="btn btn-link text-dark p-2" id="themeToggle" aria-label="Toggle dark mode"
+                        title="Toggle theme">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <a class="btn btn-primary btn-sm px-4 rounded-pill" href="portal/login.html">
+                        Student Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center text-center">
+        <div class="container position-relative z-2" id="main-content">
+            <div class="hero-badge mx-auto">
+                <i class="bi bi-stars text-warning" aria-hidden="true"></i>
+                <span>Unlock Your Potential</span>
+            </div>
+            <h1 class="hero-title mb-4 text-white">
+                Master New Skills<br>
+                <span class="text-gradient">From The Comfort Of Home</span>
+            </h1>
+            <p class="hero-subtitle mx-auto mb-5">
+                Access expert-led courses in programming, design, and business.
+                Start your journey to success with our premium learning platform today.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="#courses" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
+                    Browse Courses
+                </a>
+                <a href="portal/login.html"
+                    class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift">
+                    Student Login
+                </a>
+            </div>
+        </div>
+        <!-- Abstract Background Elements -->
+        <div class="hero-glow glow-1" aria-hidden="true"></div>
+        <div class="hero-glow glow-2" aria-hidden="true"></div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="py-5 bg-light">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h6 class="text-primary fw-bold text-uppercase tracking-wider">Our Catalog</h6>
+                <h2 class="fw-bold display-5 mb-3">Available Courses</h2>
+                <p class="text-muted lead">Choose from our range of premium courses.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap" role="group" aria-label="Course filters">
+                <button class="btn btn-sm btn-outline-primary rounded-pill active" data-filter="all">
+                    All Courses
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" data-filter="programming">
+                    Programming
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" data-filter="design">
+                    Design
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" data-filter="business">
+                    Business
+                </button>
+            </div>
+
+            <div id="course-grid" class="row g-4" role="list">
+                <!-- Courses will be loaded here dynamically with skeleton screens -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="registerModalLabel">Register Interest</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4 small">Fill out the form below and our team will contact you with
+                        enrollment details.</p>
+                    <form id="registrationForm" novalidate>
+                        <input type="hidden" id="courseId">
+                        <div class="form-group">
+                            <label class="form-label required" for="regName">Full Name</label>
+                            <div class="position-relative">
+                                <i class="bi bi-person form-input-icon" aria-hidden="true"></i>
+                                <input type="text" class="form-input has-icon" id="regName" placeholder="John Doe"
+                                    required minlength="2" autocomplete="name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="regEmail">Email Address</label>
+                            <div class="position-relative">
+                                <i class="bi bi-envelope form-input-icon" aria-hidden="true"></i>
+                                <input type="email" class="form-input has-icon" id="regEmail"
+                                    placeholder="name@example.com" required autocomplete="email">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="regPhone">Phone Number</label>
+                            <div class="position-relative">
+                                <i class="bi bi-telephone form-input-icon" aria-hidden="true"></i>
+                                <input type="tel" class="form-input has-icon" id="regPhone" placeholder="+1 234 567 890"
+                                    required autocomplete="tel">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold mt-3">
+                            <span class="btn-text">Submit Request</span>
+                            <span class="btn-spinner d-none">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Submitting...
+                            </span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5" role="contentinfo">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-md-4 text-center text-md-start">
+                    <a class="navbar-brand fs-4 fw-bold text-white mb-3 d-block" href="#">
+                        <i class="bi bi-mortarboard-fill me-2 text-primary" aria-hidden="true"></i>LearnHub
+                    </a>
+                    <p class="text-secondary">Empowering learners worldwide with accessible, high-quality education.</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <ul class="list-unstyled text-secondary">
+                        <li class="mb-2"><a href="#courses"
+                                class="text-decoration-none text-secondary hover-white">Courses</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none text-secondary hover-white">About
+                                Us</a></li>
+                        <li class="mb-2"><a href="portal/login.html"
+                                class="text-decoration-none text-secondary hover-white">Student Portal</a></li>
+                    </ul>
+                </div>
+                .eq('is_visible', true);
+
+                // Remove skeleton
+                window.LearnHubUI.LoadingManager.removeSkeleton(courseGrid);
+
+                if (error) {
+                console.error('Error fetching courses:', error);
+                courseGrid.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="empty-state-title">Failed to Load Courses</h3>
+                        <p class="empty-state-description">
+                            We couldn't load the courses. Please check your connection and try again.
+                        </p>
+                        <div class="empty-state-action">
+                            <button class="btn btn-primary" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+                return;
+                }
+
+                if (!courses || courses.length === 0) {
+                courseGrid.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-journal-x"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Courses Available</h3>
+                        <p class="empty-state-description">
+                            We're working on adding new courses. Check back soon!
+                        </p>
+                    </div>
+                </div>
+                `;
+                return;
+                }
+
+                allCourses = courses;
+                renderCourses(courses);
+
+                // Setup search
+                setupSearch();
+
+                // Setup filters
+                setupFilters();
+
+                // Setup theme toggle
+                setupThemeToggle();
+
+                // Initialize form validator
+                const form = document.getElementById('registrationForm');
+                const validator = new window.LearnHubUI.FormValidator(form);
+
+                // Handle form submission
+                form.addEventListener('submit', handleFormSubmit);
+
+                // Setup modal accessibility
+                const modal = document.getElementById('registerModal');
+                modal.addEventListener('shown.bs.modal', () => {
+                window.LearnHubUI.A11yUtils.trapFocus(modal);
+                document.getElementById('regName').focus();
+                });
+                });
+
+                function renderCourses(courses) {
+                const courseGrid = document.getElementById('course-grid');
+
+                if (courses.length === 0) {
+                courseGrid.innerHTML = `
+                <div class="col-12">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Courses Found</h3>
+                        <p class="empty-state-description">
+                            Try adjusting your search or filter to find what you're looking for.
+                        </p>
+                    </div>
+                </div>
+                `;
+                return;
+                }
+
+                courseGrid.innerHTML = courses.map(course => {
+                const isWishlisted = window.wishlist.has(course.id);
+                return `
+                <div class="col-md-6 col-lg-4" role="listitem">
+                    <div class="course-card-enhanced">
+                        <div class="course-thumbnail">
+                            <div
+                                style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-600)); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                <i class="bi bi-book" aria-hidden="true"></i>
+                            </div>
+                            <span class="course-badge">New</span>
+                            <button class="course-wishlist ${isWishlisted ? 'active' : ''}"
+                                onclick="toggleWishlist('${course.id}')"
+                                aria-label="${isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}">
+                                <i class="bi bi-heart${isWishlisted ? '-fill' : ''}"></i>
+                            </button>
+                        </div>
+                        <div class="course-card-body">
+                            <span class="course-category">Online Course</span>
+                            <h3 class="course-title">${course.title}</h3>
+                            <div class="course-instructor">
+                                <div class="instructor-avatar"></div>
+                                <span>LearnHub Instructor</span>
+                            </div>
+                            <div class="course-rating">
+                                <span class="rating-stars" aria-label="Rating: 4.8 out of 5">
+                                    ★★★★★
+                                </span>
+                                <span class="rating-value">4.8</span>
+                                <span class="rating-count">(120)</span>
+                            </div>
+                            <p class="course-description">
+                                ${course.description || 'Comprehensive course covering all essential topics.'}
+                            </p>
+                            <div class="course-meta">
+                                <div class="course-meta-item">
+                                    <i class="bi bi-clock" aria-hidden="true"></i>
+                                    <span>${course.duration || 'Self-paced'}</span>
+                                </div>
+                                <div class="course-meta-item">
+                                    <i class="bi bi-people" aria-hidden="true"></i>
+                                </div>
+                                `;
+                                }).join('');
+                                }
+
+                                function setupSearch() {
+                                const searchInput = document.getElementById('courseSearch');
+                                const debouncedSearch = window.LearnHubUI.debounce((query) => {
+                                searchQuery = query.toLowerCase();
+                                filterAndRenderCourses();
+                                }, 300);
+
+                                searchInput.addEventListener('input', (e) => {
+                                debouncedSearch(e.target.value);
+                                });
+                                }
+
+                                function setupFilters() {
+                                const filterButtons = document.querySelectorAll('[data-filter]');
+                                filterButtons.forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                // Update active state
+                                filterButtons.forEach(b => b.classList.remove('active'));
+                                btn.classList.add('active');
+
+                                currentFilter = btn.dataset.filter;
+                                filterAndRenderCourses();
+                                });
+                                });
+                                }
+
+                                function filterAndRenderCourses() {
+                                let filtered = allCourses;
+
+                                // Apply category filter
+                                if (currentFilter !== 'all') {
+                                filtered = filtered.filter(course =>
+                                course.category?.toLowerCase() === currentFilter
+                                );
+                                }
+
+                                // Apply search filter
+                                if (searchQuery) {
+                                filtered = filtered.filter(course =>
+                                course.title.toLowerCase().includes(searchQuery) ||
+                                course.description?.toLowerCase().includes(searchQuery)
+                                );
+                                }
+
+                                renderCourses(filtered);
+                                }
+
+                                function setupThemeToggle() {
+                                const themeToggle = document.getElementById('themeToggle');
+                                const icon = themeToggle.querySelector('i');
+
+                                // Update icon based on current theme
+                                const updateIcon = () => {
+                                const theme = document.documentElement.getAttribute('data-theme');
+                                icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                                };
+
+                                updateIcon();
+
+                                themeToggle.addEventListener('click', () => {
+                                window.themeManager.toggle();
+                                updateIcon();
+                                });
+                                }
+
+                                function toggleWishlist(courseId) {
+                                window.wishlist.toggle(courseId);
+                                // Re-render to update heart icon
+                                filterAndRenderCourses();
+                                }
+
+                                function openRegisterModal(courseId, courseTitle) {
+                                document.getElementById('courseId').value = courseId;
+                                const modal = new bootstrap.Modal(document.getElementById('registerModal'));
+                                modal.show();
+                                }
+
+                                async function handleFormSubmit(e) {
+                                e.preventDefault();
+
+                                const form = e.target;
+                                const validator = new window.LearnHubUI.FormValidator(form);
+
+                                // Validate all fields
+                                if (!validator.validateAll()) {
+                                window.toast.error('Please fix the errors in the form');
+                                return;
+                                }
+
+                                const submitBtn = form.querySelector('button[type="submit"]');
+                                const btnText = submitBtn.querySelector('.btn-text');
+                                const btnSpinner = submitBtn.querySelector('.btn-spinner');
+
+                                // Show loading state
+                                submitBtn.disabled = true;
+                                btnText.classList.add('d-none');
+                                btnSpinner.classList.remove('d-none');
+
+                                const formData = {
+                                full_name: document.getElementById('regName').value,
+                                email: document.getElementById('regEmail').value,
+                                phone: document.getElementById('regPhone').value,
+                                course_id: document.getElementById('courseId').value,
+                                status: 'pending'
+                                };
+
+                                const { error } = await window.sb.from('requests').insert([formData]);
+
+                                // Hide loading state
+                                submitBtn.disabled = false;
+                                btnText.classList.remove('d-none');
+                                btnSpinner.classList.add('d-none');
+
+                                if (error) {
+                                console.error('Error:', error);
+                                window.toast.error('Failed to submit request. Please try again.');
+                                } else {
+                                // Hide modal
+                                bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                                form.reset();
+                                validator.reset();
+
+                                // Show success toast
+                                window.toast.success('Request submitted successfully! We will contact you soon.');
+
+                                // Announce to screen readers
+                                window.LearnHubUI.A11yUtils.announce('Registration request submitted successfully');
+                                }
+                                }
+
+                                function viewDetails(courseId) {
+                                window.location.href = `course-details.html?id=${courseId}`;
+                                }
+
+                                // Listen for wishlist updates
+                                window.addEventListener('wishlistUpdated', () => {
+                                filterAndRenderCourses();
+                                });
+                                </script>
+</body>
+
+</html>
