@@ -9,7 +9,7 @@ module.exports = defineConfig({
     reporter: 'html',
 
     use: {
-        baseURL: 'http://localhost:8000',
+        baseURL: 'https://learnhub-platform-theta.vercel.app',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
     },
@@ -29,9 +29,9 @@ module.exports = defineConfig({
         },
     ],
 
-    webServer: {
-        command: 'python -m http.server 8000',
-        url: 'http://localhost:8000',
-        reuseExistingServer: !process.env.CI,
-    },
+    // webServer: {
+    //     command: 'python -m http.server 8000',
+    //     url: 'http://localhost:8000',
+    //     reuseExistingServer: !process.env.CI,
+    // },
 });

@@ -7,17 +7,186 @@
     <title>Classroom - LearnHub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/design-system.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root {
+            --sidebar-width: 320px;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation */
+        .classroom-nav {
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Sidebar */
+        .classroom-sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 64px);
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .classroom-sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        /* Main Content */
+        .classroom-content {
+            margin-left: var(--sidebar-width);
+            min-height: calc(100vh - 64px);
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .classroom-content.sidebar-hidden {
+            margin-left: 0;
+        }
+
+        /* Module Items */
+        .module-section {
+            margin-bottom: 1rem;
+        }
+
+        .module-header {
+            padding: 1rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .module-header:hover {
+            background: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .module-header.active {
+            background: var(--color-primary-50);
+            border-color: var(--color-primary-500);
+        }
+
+        .module-items {
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .module-item {
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .module-item:hover {
+            background: #f8f9fa;
+            transform: translateX(4px);
+        }
+
+        .module-item.active {
+            background: var(--color-primary-500);
+            color: white;
+            border-color: var(--color-primary-600);
+        }
+
+        .module-item.active .item-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .module-item.completed {
+            opacity: 0.7;
+        }
+
+        .module-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon-video {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .icon-reading {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .icon-quiz {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .icon-assignment {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        /* Progress Indicators */
+        .progress-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .progress-circle.completed {
+            background: var(--color-success-500);
+            border-color: var(--color-success-500);
+            color: white;
+        }
+
+        .progress-circle.in-progress {
+            border-color: var(--color-primary-500);
+            color: var(--color-primary-500);
+        }
+
+        /* Video Player */
         .video-container {
             position: relative;
             padding-bottom: 56.25%;
-            /* 16:9 */
             height: 0;
             overflow: hidden;
             background: #000;
-            border-radius: 0.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
         }
 
         .video-container iframe {
@@ -27,117 +196,206 @@
             width: 100%;
             height: 100%;
         }
+
+        /* Reading Content */
+        .reading-content {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .reading-content h1,
+        .reading-content h2,
+        .reading-content h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Quiz Interface */
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-option {
+            padding: 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--color-primary-500);
+            background: var(--color-primary-50);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--color-primary-500);
+            background: var(--color-primary-100);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--color-success-500);
+            background: var(--color-success-50);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--color-danger-500);
+            background: var(--color-danger-50);
+        }
+
+        /* Assignment Interface */
+        .assignment-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .classroom-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .classroom-sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+
+            .classroom-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
     </style>
 </head>
 
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html"><i class="bi bi-arrow-left me-2"></i>Back to Dashboard</a>
-            <span class="navbar-text text-white fw-bold" id="courseTitleHeader">Course Title</span>
-            <button class="btn btn-outline-light btn-sm ms-auto" onclick="logout()">Logout</button>
+    <!-- Top Navigation -->
+    <nav class="classroom-nav d-flex align-items-center px-4">
+        <button class="btn btn-link d-md-none me-3" id="sidebarToggle">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+        <a href="dashboard.html" class="btn btn-link text-decoration-none">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <div class="flex-grow-1 text-center">
+            <h5 class="mb-0 fw-bold" id="courseTitle">Loading...</h5>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="progress" style="width: 120px; height: 8px;">
+                <div class="progress-bar" id="courseProgressBar" role="progressbar" style="width: 0%"></div>
+            </div>
+            <span class="text-muted small" id="courseProgressText">0%</span>
+            <button class="btn btn-outline-primary btn-sm" onclick="logout()">Logout</button>
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar Content List -->
-            <div class="col-md-3 bg-light border-end" style="min-height: calc(100vh - 56px);">
-                <div class="p-3">
-                    <h5 class="fw-bold mb-3">Course Content</h5>
-                    <div class="list-group" id="contentList">
-                        <!-- Content items -->
-                        <button class="list-group-item list-group-item-action active" onclick="showSection('meet')">
-                            <i class="bi bi-camera-video me-2"></i> Live Class
-                        </button>
-                        <button class="list-group-item list-group-item-action" onclick="showSection('videos')">
-                            <i class="bi bi-play-btn me-2"></i> Recorded Videos
-                        </button>
-                        <button class="list-group-item list-group-item-action" onclick="showSection('resources')">
-                            <i class="bi bi-folder2-open me-2"></i> Resources & Notes
-                        </button>
-                        <button class="list-group-item list-group-item-action" onclick="showSection('roadmap')">
-                            <i class="bi bi-map me-2"></i> Roadmap
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content Area -->
-            <div class="col-md-9 p-4">
-
-                <!-- Live Class Section -->
-                <div id="section-meet" class="content-section">
-                    <div class="card shadow-sm border-0 mb-4">
-                        <div class="card-body text-center p-5">
-                            <i class="bi bi-google display-1 text-primary mb-3"></i>
-                            <h2 class="fw-bold">Live Class Session</h2>
-                            <p class="text-muted mb-4">Join the live Google Meet session for this course.</p>
-                            <a href="#" id="meetLinkBtn" target="_blank" class="btn btn-primary btn-lg px-5 disabled">
-                                <i class="bi bi-camera-video-fill me-2"></i> Join Meeting
-                            </a>
-                            <p id="noMeetMessage" class="text-danger mt-2 d-none">No meeting link available currently.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Videos Section -->
-                <div id="section-videos" class="content-section d-none">
-                    <h3 class="mb-4">Recorded Videos</h3>
-                    <div id="videoPlayerArea">
-                        <!-- YouTube Embed -->
-                        <div class="alert alert-info">Select a video from the playlist below (if available).</div>
-                    </div>
-                    <div id="playlistContainer" class="mt-4">
-                        <!-- Playlist items -->
-                    </div>
-                </div>
-
-                <!-- Resources Section -->
-                <div id="section-resources" class="content-section d-none">
-                    <h3 class="mb-4">Resources & Notes</h3>
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="courseOutlineDisplay" class="mb-4"></div>
-                            <hr>
-                            <h5>Downloadable Materials</h5>
-                            <p class="text-muted">No files uploaded yet.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Roadmap Section -->
-                <div id="section-roadmap" class="content-section d-none">
-                    <h3 class="mb-4">Course Roadmap</h3>
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <pre id="roadmapDisplay" style="white-space: pre-wrap; font-family: inherit;"></pre>
-                        </div>
-                    </div>
-                </div>
-
+    <!-- Sidebar -->
+    <div class="classroom-sidebar" id="sidebar">
+        <div class="p-3">
+            <h6 class="text-muted text-uppercase small mb-3">Course Content</h6>
+            <div id="modulesContainer">
+                <!-- Modules will be loaded here -->
             </div>
         </div>
     </div>
 
-    <script src="../assets/js/supabase-client.js"></script>
+    <!-- Main Content -->
+    <div class="classroom-content" id="mainContent">
+        <div id="contentArea">
+            <!-- Content will be loaded here -->
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading course content...</p>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4" id="navigationButtons" style="display: none !important;">
+            <button class="btn btn-outline-secondary" id="prevButton" onclick="navigatePrevious()">
+                <i class="bi bi-arrow-left me-2"></i>Previous
+            </button>
+            <button class="btn btn-primary" id="markCompleteButton" onclick="markAsComplete()">
+                <i class="bi bi-check-circle me-2"></i>Mark as Complete
+            </button>
+            <button class="btn btn-primary" id="nextButton" onclick="navigateNext()">
+                Next<i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="../assets/js/ui-utils.js"></script>
+    <script src="../assets/js/supabase-client"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         // Auth Check
         const studentUser = JSON.parse(localStorage.getItem('studentUser'));
         if (!studentUser || studentUser.role !== 'student') window.location.href = 'login.html';
         function logout() { localStorage.removeItem('studentUser'); window.location.href = 'login.html'; }
 
+        // Global Variables
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
+        let currentCourse = null;
+        let allModules = [];
+        let allItems = [];
+        let currentItem = null;
+        let userProgress = {};
+        let youtubePlayer = null;
 
         if (!courseId) {
             alert('No course specified');
             window.location.href = 'dashboard.html';
         }
 
-        document.addEventListener('DOMContentLoaded', loadCourseData);
+        // Mobile Sidebar Toggle
+        document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('mobile-visible');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCourseData();
+            await loadModulesAndItems();
+            await loadUserProgress();
+            renderModules();
+
+            // Load first incomplete item or first item
+            const firstIncomplete = allItems.find(item => !userProgress[item.id] || userProgress[item.id].status !== 'completed');
+            if (firstIncomplete) {
+                loadContentItem(firstIncomplete.id);
+            } else if (allItems.length > 0) {
+                loadContentItem(allItems[0].id);
+            }
+        });
 
         async function loadCourseData() {
             const { data: course, error } = await window.sb
@@ -146,47 +404,431 @@
                 .eq('id', courseId)
                 .single();
 
-            if (error) return alert('Error loading course data');
-
-            document.getElementById('courseTitleHeader').innerText = course.title;
-
-            // Setup Meet Link
-            const meetBtn = document.getElementById('meetLinkBtn');
-            if (course.meet_link) {
-                meetBtn.href = course.meet_link;
-                meetBtn.classList.remove('disabled');
-            } else {
-                document.getElementById('noMeetMessage').classList.remove('d-none');
+            if (error) {
+                window.toast?.error('Failed to load course');
+                return;
             }
 
-            // Setup Roadmap & Outline
-            document.getElementById('roadmapDisplay').innerText = course.roadmap || 'No roadmap available.';
-            document.getElementById('courseOutlineDisplay').innerText = course.outline || 'No outline available.';
+            currentCourse = course;
+            document.getElementById('courseTitle').textContent = course.title;
+        }
 
-            // Setup Videos (YouTube Playlist)
-            if (course.playlist_id) {
-                const playlistContainer = document.getElementById('playlistContainer');
-                playlistContainer.innerHTML = `
-                    <div class="video-container">
-                        <iframe src="https://www.youtube.com/embed/videoseries?list=${course.playlist_id}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        async function loadModulesAndItems() {
+            const { data: modules, error } = await window.sb
+                .from('course_modules')
+                .select(`
+                    *,
+                    module_items (*)
+                `)
+                .eq('course_id', courseId)
+                .eq('is_published', true)
+                .order('order_index');
+
+            if (error) {
+                window.toast?.error('Failed to load modules');
+                return;
+            }
+
+            allModules = modules || [];
+            allItems = [];
+
+            // Flatten all items
+            allModules.forEach(module => {
+                if (module.module_items) {
+                    module.module_items.sort((a, b) => a.order_index - b.order_index);
+                    allItems.push(...module.module_items);
+                }
+            });
+        }
+
+        async function loadUserProgress() {
+            const { data: progress, error } = await window.sb
+                .from('student_progress')
+                .select('*')
+                .eq('user_id', studentUser.id);
+
+            if (error) {
+                console.error('Failed to load progress:', error);
+                return;
+            }
+
+            userProgress = {};
+            (progress || []).forEach(p => {
+                userProgress[p.module_item_id] = p;
+            });
+
+            updateCourseProgress();
+        }
+
+        function updateCourseProgress() {
+            const completedCount = Object.values(userProgress).filter(p => p.status === 'completed').length;
+            const totalCount = allItems.length;
+            const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+            document.getElementById('courseProgressBar').style.width = percentage + '%';
+            document.getElementById('courseProgressText').textContent = percentage + '%';
+        }
+
+        function renderModules() {
+            const container = document.getElementById('modulesContainer');
+            container.innerHTML = allModules.map(module => {
+                const items = module.module_items || [];
+                const completedItems = items.filter(item => userProgress[item.id]?.status === 'completed').length;
+                const moduleProgress = items.length > 0 ? Math.round((completedItems / items.length) * 100) : 0;
+
+                return `
+                    <div class="module-section">
+                        <div class="module-header" onclick="toggleModule('${module.id}')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">${module.title}</div>
+                                    <small class="text-muted">${completedItems}/${items.length} completed</small>
+                                </div>
+                                <div>
+                                    <small class="text-muted me-2">${moduleProgress}%</small>
+                                    <i class="bi bi-chevron-down" id="chevron-${module.id}"></i>
+                                </div>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar" style="width: ${moduleProgress}%"></div>
+                            </div>
+                        </div>
+                        <div class="module-items" id="items-${module.id}" style="display: none;">
+                            ${items.map(item => renderModuleItem(item)).join('')}
+                        </div>
                     </div>
                 `;
-                document.getElementById('videoPlayerArea').innerHTML = '';
+            }).join('');
+        }
+
+        function renderModuleItem(item) {
+            const progress = userProgress[item.id];
+            const isCompleted = progress?.status === 'completed';
+            const isLocked = !isItemUnlocked(item);
+
+            const icons = {
+                video: 'play-btn',
+                reading: 'book',
+                quiz: 'question-circle',
+                assignment: 'file-earmark-text'
+            };
+
+            const statusIcon = isCompleted ?
+                '<i class="bi bi-check-circle-fill text-success"></i>' :
+                isLocked ? '<i class="bi bi-lock-fill text-muted"></i>' :
+                    '<div class="progress-circle"></div>';
+
+            return `
+                <div class="module-item ${currentItem?.id === item.id ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}"
+                     onclick="${isLocked ? '' : `loadContentItem('${item.id}')`}">
+                    <div class="item-icon icon-${item.type}">
+                        <i class="bi bi-${icons[item.type]}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${item.title}</div>
+                        ${item.estimated_duration ? `<small class="text-muted">${item.estimated_duration} min</small>` : ''}
+                    </div>
+                    ${statusIcon}
+                </div>
+            `;
+        }
+
+        function isItemUnlocked(item) {
+            // First item is always unlocked
+            const itemIndex = allItems.findIndex(i => i.id === item.id);
+            if (itemIndex === 0) return true;
+
+            // Check if previous item is completed
+            const previousItem = allItems[itemIndex - 1];
+            return userProgress[previousItem.id]?.status === 'completed';
+        }
+
+        function toggleModule(moduleId) {
+            const itemsContainer = document.getElementById(`items-${moduleId}`);
+            const chevron = document.getElementById(`chevron-${moduleId}`);
+
+            if (itemsContainer.style.display === 'none') {
+                itemsContainer.style.display = 'block';
+                chevron.classList.replace('bi-chevron-down', 'bi-chevron-up');
             } else {
-                document.getElementById('videoPlayerArea').innerHTML = '<div class="alert alert-warning">No video playlist linked for this course.</div>';
+                itemsContainer.style.display = 'none';
+                chevron.classList.replace('bi-chevron-up', 'bi-chevron-down');
             }
         }
 
-        function showSection(sectionId) {
-            // Hide all
-            document.querySelectorAll('.content-section').forEach(el => el.classList.add('d-none'));
-            document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+        async function loadContentItem(itemId) {
+            const item = allItems.find(i => i.id === itemId);
+            if (!item) return;
 
-            // Show selected
-            document.getElementById(`section-${sectionId}`).classList.remove('d-none');
+            currentItem = item;
 
-            // Highlight button (simple logic finding button by onclick text is brittle, better to add IDs to buttons, but this works for now)
-            event.currentTarget.classList.add('active');
+            // Update sidebar
+            renderModules();
+
+            // Track access
+            await trackItemAccess(itemId);
+
+            // Load content based on type
+            const contentArea = document.getElementById('contentArea');
+
+            switch (item.type) {
+                case 'video':
+                    contentArea.innerHTML = renderVideoContent(item);
+                    initializeVideoPlayer(item);
+                    break;
+                case 'reading':
+                    contentArea.innerHTML = renderReadingContent(item);
+                    break;
+                case 'quiz':
+                    await loadQuizContent(item);
+                    break;
+                case 'assignment':
+                    contentArea.innerHTML = renderAssignmentContent(item);
+                    break;
+            }
+
+            // Show navigation buttons
+            document.getElementById('navigationButtons').style.display = 'flex';
+            updateNavigationButtons();
+        }
+
+        function renderVideoContent(item) {
+            const content = item.content || {};
+            const youtubeId = extractYouTubeId(content.youtube_url);
+
+            return `
+                <div>
+                    <h2 class="mb-3">${item.title}</h2>
+                    ${item.description ? `<p class="text-muted mb-4">${item.description}</p>` : ''}
+                    
+                    <div class="video-container" id="videoPlayer">
+                        <div id="player"></div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Watch at least 90% of the video to mark it as complete.
+                    </div>
+                </div>
+            `;
+        }
+
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function initializeVideoPlayer(item) {
+            const content = item.content || {};
+            const youtubeId = extractYouTubeId(content.youtube_url);
+
+            if (!youtubeId) {
+                document.getElementById('videoPlayer').innerHTML = '<div class="alert alert-danger">Invalid YouTube URL</div>';
+                return;
+            }
+
+            // YouTube IFrame API will call this when ready
+            window.onYouTubeIframeAPIReady = function () {
+                youtubePlayer = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: youtubeId,
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            };
+
+            // If API already loaded
+            if (window.YT && window.YT.Player) {
+                window.onYouTubeIframeAPIReady();
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            // Track video progress
+            if (event.data == YT.PlayerState.PLAYING) {
+                startVideoTracking();
+            } else {
+                stopVideoTracking();
+            }
+        }
+
+        let videoTrackingInterval = null;
+
+        function startVideoTracking() {
+            if (videoTrackingInterval) return;
+
+            videoTrackingInterval = setInterval(async () => {
+                if (!youtubePlayer) return;
+
+                const currentTime = youtubePlayer.getCurrentTime();
+                const duration = youtubePlayer.getDuration();
+                const percentage = Math.round((currentTime / duration) * 100);
+
+                // Auto-complete at 90%
+                if (percentage >= 90 && (!userProgress[currentItem.id] || userProgress[currentItem.id].status !== 'completed')) {
+                    await markAsComplete();
+                }
+            }, 5000); // Check every 5 seconds
+        }
+
+        function stopVideoTracking() {
+            if (videoTrackingInterval) {
+                clearInterval(videoTrackingInterval);
+                videoTrackingInterval = null;
+            }
+        }
+
+        function renderReadingContent(item) {
+            const content = item.content || {};
+            return `
+                <div class="reading-content">
+                    <h2 class="mb-3">${item.title}</h2>
+                    ${item.description ? `<p class="lead text-muted mb-4">${item.description}</p>` : ''}
+                    <hr class="my-4">
+                    <div>${content.content_html || 'No content available'}</div>
+                </div>
+            `;
+        }
+
+        async function loadQuizContent(item) {
+            // Quiz content will be loaded in next part
+            document.getElementById('contentArea').innerHTML = `
+                <div class="text-center py-5">
+                    <h3>Quiz: ${item.title}</h3>
+                    <p class="text-muted">Quiz functionality coming in next update...</p>
+                </div>
+            `;
+        }
+
+        function renderAssignmentContent(item) {
+            const content = item.content || {};
+            return `
+                <div class="assignment-container">
+                    <h2 class="mb-3">${item.title}</h2>
+                    ${item.description ? `<p class="text-muted mb-4">${item.description}</p>` : ''}
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Instructions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div>${content.instructions || 'No instructions provided'}</div>
+                        </div>
+                    </div>
+
+                    ${content.due_date ? `
+                        <div class="alert alert-warning">
+                            <i class="bi bi-clock me-2"></i>
+                            Due: ${new Date(content.due_date).toLocaleString()}
+                        </div>
+                    ` : ''}
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Your Submission</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control mb-3" rows="10" id="assignmentSubmission" 
+                                      placeholder="Enter your submission here..."></textarea>
+                            <button class="btn btn-primary" onclick="submitAssignment()">
+                                <i class="bi bi-send me-2"></i>Submit Assignment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function trackItemAccess(itemId) {
+            const { error } = await window.sb
+                .from('student_progress')
+                .upsert({
+                    user_id: studentUser.id,
+                    module_item_id: itemId,
+                    status: userProgress[itemId]?.status || 'in_progress',
+                    last_accessed: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,module_item_id'
+                });
+
+            if (!error) {
+                await loadUserProgress();
+            }
+        }
+
+        async function markAsComplete() {
+            if (!currentItem) return;
+
+            const { error } = await window.sb
+                .from('student_progress')
+                .upsert({
+                    user_id: studentUser.id,
+                    module_item_id: currentItem.id,
+                    status: 'completed',
+                    progress_percentage: 100,
+                    completed_at: new Date().toISOString(),
+                    last_accessed: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id,module_item_id'
+                });
+
+            if (error) {
+                window.toast?.error('Failed to mark as complete');
+                return;
+            }
+
+            window.toast?.success('Marked as complete!');
+            await loadUserProgress();
+            renderModules();
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const currentIndex = allItems.findIndex(i => i.id === currentItem?.id);
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            const markCompleteButton = document.getElementById('markCompleteButton');
+
+            prevButton.disabled = currentIndex <= 0;
+            nextButton.disabled = currentIndex >= allItems.length - 1;
+
+            const isCompleted = userProgress[currentItem?.id]?.status === 'completed';
+            markCompleteButton.style.display = isCompleted ? 'none' : 'block';
+        }
+
+        function navigatePrevious() {
+            const currentIndex = allItems.findIndex(i => i.id === currentItem?.id);
+            if (currentIndex > 0) {
+                loadContentItem(allItems[currentIndex - 1].id);
+            }
+        }
+
+        function navigateNext() {
+            const currentIndex = allItems.findIndex(i => i.id === currentItem?.id);
+            if (currentIndex < allItems.length - 1) {
+                const nextItem = allItems[currentIndex + 1];
+                if (isItemUnlocked(nextItem)) {
+                    loadContentItem(nextItem.id);
+                } else {
+                    window.toast?.warning('Complete the current item to unlock the next one');
+                }
+            }
+        }
+
+        async function submitAssignment() {
+            const submission = document.getElementById('assignmentSubmission').value;
+            if (!submission.trim()) {
+                window.toast?.warning('Please enter your submission');
+                return;
+            }
+
+            // Assignment submission logic will be added
+            window.toast?.success('Assignment submitted successfully!');
+            await markAsComplete();
         }
     </script>
 </body>

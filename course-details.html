@@ -383,11 +383,12 @@
             const { error } = await window.sb.from('requests').insert([formData]);
 
             if (error) {
-                alert('Error submitting request: ' + error.message);
+                window.toast.error('Error submitting request: ' + error.message);
             } else {
                 bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
                 e.target.reset();
                 new bootstrap.Modal(document.getElementById('successModal')).show();
+                window.toast.success('Registration request submitted successfully! We will contact you soon.');
             }
             submitBtn.disabled = false;
             submitBtn.textContent = 'Submit Request';

@@ -21,3 +21,16 @@ npm-debug.log*
 # Build outputs
 dist/
 build/
+
+# Developer-only files
+dev-only/
+
+# Test results and reports
+playwright-report/
+test-results/
+
+# Backup files
+*.backup
+*_backup.*
+*_corrupted_*
+

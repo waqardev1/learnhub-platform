@@ -30,7 +30,7 @@ class ToastManager {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.setAttribute('role', 'alert');
-    
+
     const icons = {
       success: '✓',
       error: '✕',
@@ -131,38 +131,38 @@ class FormValidator {
 
   getRules(input) {
     const rules = [];
-    
+
     if (input.required) {
       rules.push({ type: 'required', message: 'This field is required' });
     }
 
     if (input.type === 'email') {
-      rules.push({ 
-        type: 'email', 
+      rules.push({
+        type: 'email',
         message: 'Please enter a valid email address',
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       });
     }
 
     if (input.type === 'tel') {
-      rules.push({ 
-        type: 'phone', 
+      rules.push({
+        type: 'phone',
         message: 'Please enter a valid phone number',
         pattern: /^[\d\s\-\+\(\)]+$/
       });
     }
 
-    if (input.minLength) {
-      rules.push({ 
-        type: 'minLength', 
+    if (input.minLength && input.minLength > 0) {
+      rules.push({
+        type: 'minLength',
         value: input.minLength,
         message: `Minimum ${input.minLength} characters required`
       });
     }
 
-    if (input.maxLength) {
-      rules.push({ 
-        type: 'maxLength', 
+    if (input.maxLength && input.maxLength > 0) {
+      rules.push({
+        type: 'maxLength',
         value: input.maxLength,
         message: `Maximum ${input.maxLength} characters allowed`
       });
@@ -187,7 +187,7 @@ class FormValidator {
             errorMessage = rule.message;
           }
           break;
-        
+
         case 'email':
         case 'phone':
           if (value && !rule.pattern.test(value)) {
@@ -195,14 +195,14 @@ class FormValidator {
             errorMessage = rule.message;
           }
           break;
-        
+
         case 'minLength':
           if (value && value.length < rule.value) {
             isValid = false;
             errorMessage = rule.message;
           }
           break;
-        
+
         case 'maxLength':
           if (value && value.length > rule.value) {
             isValid = false;
@@ -238,7 +238,7 @@ class FormValidator {
     }
 
     feedback.className = `form-feedback ${isValid ? 'valid' : 'invalid'}`;
-    
+
     if (isValid && input.value.trim()) {
       feedback.innerHTML = '<i class="bi bi-check-circle-fill form-feedback-icon"></i> Looks good!';
     } else if (!isValid) {
@@ -251,7 +251,7 @@ class FormValidator {
 
   validateAll() {
     let allValid = true;
-    
+
     for (const fieldName in this.fields) {
       const field = this.fields[fieldName];
       const isValid = this.validateField(field.element);
@@ -278,10 +278,10 @@ class FormValidator {
 class LoadingManager {
   static showSkeleton(container, type = 'card', count = 1) {
     const skeletons = [];
-    
+
     for (let i = 0; i < count; i++) {
       const skeleton = document.createElement('div');
-      
+
       if (type === 'card') {
         skeleton.className = 'col-md-6 col-lg-4';
         skeleton.innerHTML = `
@@ -299,11 +299,11 @@ class LoadingManager {
           <div class="skeleton skeleton-text medium"></div>
         `;
       }
-      
+
       skeletons.push(skeleton);
       container.appendChild(skeleton);
     }
-    
+
     return skeletons;
   }
 
@@ -317,10 +317,10 @@ class LoadingManager {
     spinner.className = `spinner-border text-primary spinner-${size}`;
     spinner.setAttribute('role', 'status');
     spinner.innerHTML = '<span class="visually-hidden">Loading...</span>';
-    
+
     element.innerHTML = '';
     element.appendChild(spinner);
-    
+
     return spinner;
   }
 }
@@ -349,7 +349,7 @@ class ThemeManager {
   toggle() {
     const newTheme = this.theme === 'light' ? 'dark' : 'light';
     this.applyTheme(newTheme);
-    
+
     // Announce to screen readers
     const announcement = document.createElement('div');
     announcement.setAttribute('role', 'status');
@@ -385,12 +385,12 @@ class ProgressTracker {
   static updateCircularProgress(element, percentage) {
     const circle = element.querySelector('.progress-ring-progress');
     const text = element.querySelector('.progress-ring-text');
-    
+
     if (circle && text) {
       const radius = circle.r.baseVal.value;
       const circumference = radius * 2 * Math.PI;
       const offset = circumference - (percentage / 100) * circumference;
-      
+
       circle.style.strokeDasharray = `${circumference} ${circumference}`;
       circle.style.strokeDashoffset = offset;
       text.textContent = `${percentage}%`;
@@ -406,23 +406,23 @@ class ProgressTracker {
 
   static animateProgress(element, from, to, duration = 1000) {
     const start = performance.now();
-    
+
     const animate = (currentTime) => {
       const elapsed = currentTime - start;
       const progress = Math.min(elapsed / duration, 1);
       const currentValue = from + (to - from) * progress;
-      
+
       if (element.classList.contains('progress-ring')) {
         this.updateCircularProgress(element, Math.round(currentValue));
       } else {
         this.updateLinearProgress(element, Math.round(currentValue));
       }
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     };
-    
+
     requestAnimationFrame(animate);
   }
 }
@@ -454,7 +454,7 @@ class A11yUtils {
     skipLink.addEventListener('blur', () => {
       skipLink.style.top = '-40px';
     });
-    
+
     document.body.insertBefore(skipLink, document.body.firstChild);
   }
 
@@ -474,10 +474,10 @@ class A11yUtils {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstFocusable = focusableElements[0];
     const lastFocusable = focusableElements[focusableElements.length - 1];
-    
+
     element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstFocusable) {
@@ -488,7 +488,7 @@ class A11yUtils {
           firstFocusable.focus();
         }
       }
-      
+
       if (e.key === 'Escape') {
         const closeBtn = element.querySelector('[data-bs-dismiss="modal"]');
         if (closeBtn) closeBtn.click();
@@ -500,7 +500,7 @@ class A11yUtils {
 // Initialize accessibility features on page load
 document.addEventListener('DOMContentLoaded', () => {
   A11yUtils.addSkipLink();
-  
+
   // Add main content ID if not present
   const main = document.querySelector('main');
   if (main && !main.id) {
@@ -553,8 +553,8 @@ class WishlistManager {
   save() {
     localStorage.setItem('wishlist', JSON.stringify(this.wishlist));
     // Dispatch event for other components to listen
-    window.dispatchEvent(new CustomEvent('wishlistUpdated', { 
-      detail: { wishlist: this.wishlist } 
+    window.dispatchEvent(new CustomEvent('wishlistUpdated', {
+      detail: { wishlist: this.wishlist }
     }));
   }
 
@@ -582,7 +582,7 @@ class SearchManager {
     }
 
     const lowerQuery = query.toLowerCase();
-    
+
     return this.items.filter(item => {
       return this.searchKeys.some(key => {
         const value = this.getNestedValue(item, key);
