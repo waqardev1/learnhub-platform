@@ -632,7 +632,78 @@
 
 
 
+        
         function renderModule(module) {
+            const items = module.module_items || [];
+            const itemsHtml = items
+                .sort((a, b) => a.order_index - b.order_index)
+                .map(item => renderContentItem(item)).join('');
+
+            return `
+                <div class="admin-table-container module-card mb-3">
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1 fw-bold">${module.title}</h5>
+                            ${module.description ? `<p class="text-muted mb-0 small">${module.description}</p>` : ''}
+                        </div>
+                        <div>
+                            <span class="badge ${module.is_published ? 'bg-success' : 'bg-secondary'} me-2">
+                                ${module.is_published ? 'Published' : 'Draft'}
+                            </span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editModule('${module.id}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteModule('${module.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        ${itemsHtml || '<p class="text-muted mb-0">No content items yet</p>'}
+                        <button class="btn btn-sm btn-admin-secondary mt-3" onclick="showAddContentModal('${module.id}')">
+                            <i class="bi bi-plus me-2"></i>Add Content Item
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContentItem(item) {
+            const icons = {
+                video: 'play-btn',
+                reading: 'book',
+                quiz: 'question-circle',
+                assignment: 'file-earmark-text'
+            };
+
+            const iconClass = `icon-${item.type}`;
+            const icon = icons[item.type] || 'file';
+
+            return `
+                <div class="content-item d-flex align-items-center mb-2">
+                    <div class="item-icon ${iconClass} me-3">
+                        <i class="bi bi-${icon}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${item.title}</div>
+                        ${item.description ? `<small class="text-muted">${item.description}</small>` : ''}
+                    </div>
+                    <div>
+                        ${item.is_required ? '<span class="badge bg-warning text-dark me-2">Required</span>' : ''}
+                        <button class="btn btn-sm btn-link" onclick="editContentItem('${item.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-link text-danger" onclick="deleteContentItem('${item.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAddModuleModal() {
+            document.getElementById('moduleModalTitle').textContent = 'Add Module';
+            document.getElementById('moduleForm').reset();
             document.getElementById('moduleId').value = '';
             moduleModal.show();
         }
