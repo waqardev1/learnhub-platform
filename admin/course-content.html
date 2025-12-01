@@ -632,7 +632,7 @@
 
 
 
-        
+
         function renderModule(module) {
             const items = module.module_items || [];
             const itemsHtml = items
@@ -775,7 +775,7 @@
             typeRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
                     document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-                    document.getElementById(`${radio.value} Fields`).classList.remove('d-none');
+                    document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
                 });
             });
         }
@@ -915,11 +915,11 @@
             document.getElementById('itemRequired').checked = item.is_required;
 
             // Set content type radio
-            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)} `).checked = true;
+            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
 
             // Show correct fields for the type
             document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-            document.getElementById(`${item.type} Fields`).classList.remove('d-none');
+            document.getElementById(`${item.type}Fields`).classList.remove('d-none');
 
             // Populate type-specific fields
             if (item.content) {
