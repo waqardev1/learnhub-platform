@@ -604,6 +604,7 @@
         }
 
         async function saveContentItem() {
+            const itemId = document.getElementById(\'itemId\').value;
             const type = document.querySelector('input[name="contentType"]:checked').value;
             const moduleId = document.getElementById('itemModuleId').value;
 
@@ -619,12 +620,20 @@
 
             console.log('💾 Saving content item:', itemData);
 
-            const { error } = await window.sb
-                .from('module_items')
-                .insert([itemData]);
+            let result;
+            if (itemId) {
+                result = await window.sb
+                    .from('module_items')
+                    .update(itemData)
+                    .eq('id', itemId);
+            } else {
+                result = await window.sb
+                    .from('module_items')
+                    .insert([itemData]);
+            }
 
-            if (error) {
-                console.error('❌ Failed to save content item:', error);
+            if (result.error) {
+                console.error('❌ Failed to save content item:', result.error);
                 window.toast?.error('Failed to save content item');
                 console.error(error);
                 return;
@@ -703,8 +712,62 @@
         }
 
         async function editContentItem(itemId) {
-            // Placeholder for edit functionality
-            window.toast?.info('Edit functionality coming soon');
+            const { data: item, error } = await window.sb
+                .from('module_items')
+                .select('*')
+                .eq('id', itemId)
+                .single();
+
+            if (error) {
+                window.toast?.error('Failed to load content item');
+                console.error('Error loading content item:', error);
+                return;
+            }
+
+            document.getElementById('contentItemModalTitle').textContent = 'Edit Content Item';
+            document.getElementById('contentItemForm').reset();
+            document.getElementById('itemId').value = item.id;
+            document.getElementById('itemModuleId').value = item.module_id;
+
+            // Populate common fields
+            document.getElementById('itemTitle').value = item.title;
+            document.getElementById('itemDescription').value = item.description || '';
+            document.getElementById('itemOrder').value = item.order_index;
+            document.getElementById('itemRequired').checked = item.is_required;
+
+            // Set content type radio
+            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
+            
+            // Show correct fields for the type
+            document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
+            document.getElementById(`${item.type}Fields`).classList.remove('d-none');
+
+            // Populate type-specific fields
+            if (item.content) {
+                switch (item.type) {
+                    case 'video':
+                        document.getElementById('videoUrl').value = item.content.youtube_url || '';
+                        document.getElementById('videoDuration').value = item.content.duration || '';
+                        break;
+                    case 'reading':
+                        document.getElementById('readingContent').value = item.content.content_html || '';
+                        document.getElementById('readingTime').value = item.content.estimated_time || '';
+                        break;
+                    case 'quiz':
+                        document.getElementById('quizPassingScore').value = item.content.passing_score || '';
+                        document.getElementById('quizTimeLimit').value = item.content.time_limit || '';
+                        document.getElementById('quizAttempts').value = item.content.attempts_allowed || '';
+                        break;
+                    case 'assignment':
+                        document.getElementById('assignmentInstructions').value = item.content.instructions || '';
+                        document.getElementById('assignmentMaxScore').value = item.content.max_score || '';
+                        document.getElementById('assignmentDueDate').value = item.content.due_date || '';
+                        document.getElementById('assignmentAllowLate').checked = item.content.allow_late || false;
+                        break;
+                }
+            }
+
+            contentItemModal.show();
         }
     </script>
 </body>
