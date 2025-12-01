@@ -7,8 +7,12 @@
     <title>Course Content Management - LearnHub Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Design System -->
     <link rel="stylesheet" href="../assets/css/design-system.css">
     <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         .module-card {
@@ -26,6 +30,7 @@
             margin-left: 20px;
             cursor: pointer;
             transition: all 0.2s;
+            border-radius: var(--radius-base);
         }
 
         .content-item:hover {
@@ -66,86 +71,103 @@
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="dashboard.html">
-                <i class="bi bi-mortarboard-fill me-2"></i>LearnHub Admin
-            </a>
-            <span class="navbar-text text-white">Course Content Management</span>
-            <button class="btn btn-outline-light btn-sm ms-auto" onclick="logout()">Logout</button>
+
+    <!-- Top Navbar -->
+    <nav class="admin-navbar" role="navigation" aria-label="Admin navigation">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+        <a class="navbar-brand" href="dashboard.html">
+            <i class="bi bi-mortarboard-fill" aria-hidden="true"></i>
+            <span>LearnHub Admin</span>
+        </a>
+        <div class="admin-navbar-end">
+            <button class="btn btn-link text-dark me-2" id="adminThemeToggle" aria-label="Toggle dark mode"
+                title="Toggle theme">
+                <i class="bi bi-moon-fill"></i>
+            </button>
+            <div class="admin-user-info">
+                <i class="bi bi-person-circle" aria-hidden="true"></i>
+                <span id="adminName">Administrator</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i> Logout
+            </button>
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 bg-light border-end" style="min-height: calc(100vh - 56px);">
-                <div class="p-3">
-                    <div class="list-group">
-                        <a href="dashboard.html" class="list-group-item list-group-item-action">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                        </a>
-                        <a href="courses.html" class="list-group-item list-group-item-action">
-                            <i class="bi bi-book me-2"></i>Courses
-                        </a>
-                        <a href="course-content.html" class="list-group-item list-group-item-action active">
-                            <i class="bi bi-collection me-2"></i>Course Content
-                        </a>
-                        <a href="students.html" class="list-group-item list-group-item-action">
-                            <i class="bi bi-people me-2"></i>Students
-                        </a>
-                        <a href="requests.html" class="list-group-item list-group-item-action">
-                            <i class="bi bi-envelope me-2"></i>Requests
-                        </a>
-                        <a href="settings.html" class="list-group-item list-group-item-action">
-                            <i class="bi bi-gear me-2"></i>Settings
-                        </a>
-                    </div>
-                </div>
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <nav class="admin-sidebar-nav">
+            <a href="dashboard.html" class="admin-nav-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="courses.html" class="admin-nav-item">
+                <i class="bi bi-book"></i>
+                <span>Courses</span>
+            </a>
+            <a href="course-content.html" class="admin-nav-item active">
+                <i class="bi bi-collection"></i>
+                <span>Course Content</span>
+            </a>
+            <a href="requests.html" class="admin-nav-item">
+                <i class="bi bi-envelope"></i>
+                <span>Requests</span>
+            </a>
+            <a href="students.html" class="admin-nav-item">
+                <i class="bi bi-people"></i>
+                <span>Students</span>
+            </a>
+            <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid rgba(226, 232, 240, 0.1);">
+                <a href="settings.html" class="admin-nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
             </div>
+        </nav>
+    </aside>
 
-            <!-- Main Content -->
-            <div class="col-md-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold mb-0">Course Content Management</h2>
-                </div>
+    <!-- Main Content -->
+    <main class="admin-main" id="main-content">
+        <div class="admin-page-header">
+            <h1 class="admin-page-title">Course Content Management</h1>
+            <p class="text-muted mb-0">Manage modules and learning materials for your courses</p>
+        </div>
 
-                <!-- Course Selector -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <label class="form-label fw-bold">Select Course</label>
-                        <select class="form-select form-select-lg" id="courseSelector" onchange="loadCourseModules()">
-                            <option value="">-- Select a Course --</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Course Content Area -->
-                <div id="contentArea" class="d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="fw-bold mb-0">Course Modules</h4>
-                        <button class="btn btn-primary" onclick="showAddModuleModal()">
-                            <i class="bi bi-plus-circle me-2"></i>Add Module
-                        </button>
-                    </div>
-
-                    <div id="modulesContainer">
-                        <!-- Modules will be loaded here -->
-                    </div>
-
-                    <div id="emptyState" class="text-center py-5 d-none">
-                        <i class="bi bi-inbox display-1 text-muted"></i>
-                        <h4 class="mt-3">No Modules Yet</h4>
-                        <p class="text-muted">Create your first module to start adding content</p>
-                        <button class="btn btn-primary" onclick="showAddModuleModal()">
-                            <i class="bi bi-plus-circle me-2"></i>Create First Module
-                        </button>
-                    </div>
-                </div>
+        <!-- Course Selector -->
+        <div class="admin-table-container mb-4">
+            <div class="p-4">
+                <label class="form-label fw-bold mb-3">Select Course</label>
+                <select class="form-select form-select-lg" id="courseSelector" onchange="loadCourseModules()">
+                    <option value="">-- Select a Course --</option>
+                </select>
             </div>
         </div>
-    </div>
+
+        <!-- Course Content Area -->
+        <div id="contentArea" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Course Modules</h4>
+                <button class="btn btn-admin-primary" onclick="showAddModuleModal()">
+                    <i class="bi bi-plus-circle me-2"></i>Add Module
+                </button>
+            </div>
+
+            <div id="modulesContainer">
+                <!-- Modules will be loaded here -->
+            </div>
+
+            <div id="emptyState" class="admin-table-container text-center py-5 d-none">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="mt-3">No Modules Yet</h4>
+                <p class="text-muted">Create your first module to start adding content</p>
+                <button class="btn btn-admin-primary" onclick="showAddModuleModal()">
+                    <i class="bi bi-plus-circle me-2"></i>Create First Module
+                </button>
+            </div>
+        </div>
+    </main>
 
     <!-- Add/Edit Module Modal -->
     <div class="modal fade" id="moduleModal" tabindex="-1">
@@ -182,7 +204,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveModule()">Save Module</button>
+                    <button type="button" class="btn btn-admin-primary" onclick="saveModule()">Save Module</button>
                 </div>
             </div>
         </div>
@@ -327,19 +349,44 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveContentItem()">Save Content</button>
+                    <button type="button" class="btn btn-admin-primary" onclick="saveContentItem()">Save
+                        Content</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/ui-utils.js"></script>
     <script src="../assets/js/supabase-client.js"></script>
     <script>
         // Auth Check
         const adminUser = JSON.parse(localStorage.getItem('adminUser'));
         if (!adminUser || adminUser.role !== 'admin') window.location.href = 'login.html';
+
+        // Display admin name
+        if (adminUser && adminUser.full_name) {
+            document.getElementById('adminName').textContent = adminUser.full_name;
+        }
+
+        // Setup theme toggle
+        const themeToggle = document.getElementById('adminThemeToggle');
+        const updateThemeIcon = () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const icon = themeToggle.querySelector('i');
+            icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        };
+        updateThemeIcon();
+        themeToggle.addEventListener('click', () => {
+            window.themeManager.toggle();
+            updateThemeIcon();
+        });
+
         function logout() { localStorage.removeItem('adminUser'); window.location.href = 'login.html'; }
+
+        function toggleSidebar() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        }
 
         let currentCourseId = null;
         let moduleModal, contentItemModal;
@@ -416,17 +463,17 @@
                 .map(item => renderContentItem(item)).join('');
 
             return `
-                <div class="card module-card mb-3">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div class="admin-table-container module-card mb-3">
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="mb-0">${module.title}</h5>
-                            ${module.description ? `<small class="text-muted">${module.description}</small>` : ''}
+                            <h5 class="mb-1 fw-bold">${module.title}</h5>
+                            ${module.description ? `<p class="text-muted mb-0 small">${module.description}</p>` : ''}
                         </div>
                         <div>
-                            <span class="badge ${module.is_published ? 'bg-success' : 'bg-secondary'}">
+                            <span class="badge ${module.is_published ? 'bg-success' : 'bg-secondary'} me-2">
                                 ${module.is_published ? 'Published' : 'Draft'}
                             </span>
-                            <button class="btn btn-sm btn-outline-primary ms-2" onclick="editModule('${module.id}')">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editModule('${module.id}')">
                                 <i class="bi bi-pencil"></i>
                             </button>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteModule('${module.id}')">
@@ -434,9 +481,9 @@
                             </button>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="p-4">
                         ${itemsHtml || '<p class="text-muted mb-0">No content items yet</p>'}
-                        <button class="btn btn-sm btn-outline-primary mt-3" onclick="showAddContentModal('${module.id}')">
+                        <button class="btn btn-sm btn-admin-secondary mt-3" onclick="showAddContentModal('${module.id}')">
                             <i class="bi bi-plus me-2"></i>Add Content Item
                         </button>
                     </div>
@@ -461,7 +508,7 @@
                         <i class="bi bi-${icon}"></i>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="fw-bold">${item.title}</div>
+                        <div class="fw-semibold">${item.title}</div>
                         ${item.description ? `<small class="text-muted">${item.description}</small>` : ''}
                     </div>
                     <div>
@@ -494,6 +541,8 @@
                 is_published: document.getElementById('modulePublished').checked
             };
 
+            console.log('💾 Saving module:', moduleData);
+
             let result;
             if (moduleId) {
                 result = await window.sb
@@ -507,10 +556,12 @@
             }
 
             if (result.error) {
+                console.error('❌ Failed to save module:', result.error);
                 window.toast?.error('Failed to save module');
                 return;
             }
 
+            console.log('✅ Module saved successfully');
             window.toast?.success('Module saved successfully');
             moduleModal.hide();
             loadCourseModules();
@@ -566,16 +617,20 @@
                 content: buildContentObject(type)
             };
 
+            console.log('💾 Saving content item:', itemData);
+
             const { error } = await window.sb
                 .from('module_items')
                 .insert([itemData]);
 
             if (error) {
+                console.error('❌ Failed to save content item:', error);
                 window.toast?.error('Failed to save content item');
                 console.error(error);
                 return;
             }
 
+            console.log('✅ Content item saved successfully');
             window.toast?.success('Content item saved successfully');
             contentItemModal.hide();
             loadCourseModules();
@@ -624,6 +679,32 @@
 
             window.toast?.success('Content item deleted');
             loadCourseModules();
+        }
+
+        async function editModule(moduleId) {
+            const { data: module, error } = await window.sb
+                .from('course_modules')
+                .select('*')
+                .eq('id', moduleId)
+                .single();
+
+            if (error) {
+                window.toast?.error('Failed to load module');
+                return;
+            }
+
+            document.getElementById('moduleModalTitle').textContent = 'Edit Module';
+            document.getElementById('moduleId').value = module.id;
+            document.getElementById('moduleTitle').value = module.title;
+            document.getElementById('moduleDescription').value = module.description || '';
+            document.getElementById('moduleOrder').value = module.order_index;
+            document.getElementById('modulePublished').checked = module.is_published;
+            moduleModal.show();
+        }
+
+        async function editContentItem(itemId) {
+            // Placeholder for edit functionality
+            window.toast?.info('Edit functionality coming soon');
         }
     </script>
 </body>
