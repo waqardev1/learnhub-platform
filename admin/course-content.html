@@ -590,20 +590,47 @@
             document.getElementById('contentArea').classList.remove('d-none');
             loadCourseModules();
         }
+            
+
+        async function loadCourseModules() {
+            if (!currentCourseId) {
+                console.warn('⚠️ No course selected');
+                document.getElementById('contentArea').classList.add('d-none');
+                return;
             }
 
-        const container = document.getElementById('modulesContainer');
-        const emptyState = document.getElementById('emptyState');
+            console.log(`🔍 Loading modules for course: ${currentCourseId}`);
+            document.getElementById('contentArea').classList.remove('d-none');
 
-        if (!modules || modules.length === 0) {
-            container.innerHTML = '';
-            emptyState.classList.remove('d-none');
-            return;
+            const { data: modules, error } = await window.sb
+                .from('course_modules')
+                .select(`
+                    *,
+                    module_items (*)
+                `)
+                .eq('course_id', currentCourseId)
+                .order('order_index');
+
+            if (error) {
+                console.error('❌ Failed to load modules:', error);
+                window.toast?.error('Failed to load modules');
+                return;
+            }
+
+            const container = document.getElementById('modulesContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (!modules || modules.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            emptyState.classList.add('d-none');
+            container.innerHTML = modules.map(module => renderModule(module)).join('');
         }
 
-        emptyState.classList.add('d-none');
-        container.innerHTML = modules.map(module => renderModule(module)).join('');
-        }
+
 
         function renderModule(module) {
             const items = module.module_items || [];
