@@ -68,7 +68,7 @@
             color: #388e3c;
         }
 
-        
+
         /* Course Cards Redesign */
         .course-card {
             border: none;
@@ -88,7 +88,7 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         .course-card:hover .course-card-overlay {
             opacity: 1;
         }
@@ -101,7 +101,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .course-initials {
             font-size: 3rem;
             font-weight: 800;
@@ -109,7 +109,7 @@
             letter-spacing: -1px;
             z-index: 1;
         }
-        
+
         .course-card-pattern {
             position: absolute;
             top: 0;
@@ -117,39 +117,18 @@
             right: 0;
             bottom: 0;
             opacity: 0.3;
-            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.2) 1px, transparent 0);
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.2) 1px, transparent 0);
             background-size: 20px 20px;
         }
 
         .course-card-body {
             padding: 1.5rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .course-title {
-            font-weight: 700;
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--color-neutral-900);
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .course-card-footer {
-            margin-top: 1rem;
-            padding-top: 1rem;
             border-top: 1px solid var(--color-neutral-100);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .btn-manage {
             background: var(--color-primary-500);
             color: white;
@@ -160,12 +139,11 @@
             font-size: 0.875rem;
             transition: all 0.2s;
         }
-        
+
         .btn-manage:hover {
             background: var(--color-primary-600);
             transform: scale(1.05);
         }
-
     </style>
 </head>
 
@@ -546,7 +524,7 @@
             grid.innerHTML = courses.map(course => renderCourseCard(course)).join('');
         }
 
-        
+
         function getCourseColor(title) {
             const colors = [
                 ['#4F46E5', '#3730A3'], // Indigo
@@ -564,7 +542,7 @@
             }
             return colors[Math.abs(hash) % colors.length];
         }
-        
+
         function getInitials(title) {
             return title
                 .split(' ')
@@ -574,11 +552,11 @@
                 .toUpperCase();
         }
 
-                function renderCourseCard(course) {
+        function renderCourseCard(course) {
             const title = course.title.replace(/'/g, "\'");
             const [bgStart, bgEnd] = getCourseColor(course.title);
             const initials = getInitials(course.title);
-            
+
             return `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="course-card" onclick="selectCourse('${course.id}', '${title}')">
@@ -939,7 +917,7 @@
 
             // Set content type radio
             document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
-            
+
             // Show correct fields for the type
             document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
             document.getElementById(`${item.type}Fields`).classList.remove('d-none');
