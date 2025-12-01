@@ -590,48 +590,19 @@
             document.getElementById('contentArea').classList.remove('d-none');
             loadCourseModules();
         }
+            }
 
-        function backToCourseSelection() {
-            document.getElementById('contentArea').classList.add('d-none');
-            document.getElementById('courseSelectionArea').classList.remove('d-none');
-            currentCourseId = null;
+        const container = document.getElementById('modulesContainer');
+        const emptyState = document.getElementById('emptyState');
+
+        if (!modules || modules.length === 0) {
+            container.innerHTML = '';
+            emptyState.classList.remove('d-none');
+            return;
         }
 
-        async function loadCourseModules() {
-            const courseId = document.getElementById('courseSelector').value;
-            if (!courseId) {
-                document.getElementById('contentArea').classList.add('d-none');
-                return;
-            }
-
-            currentCourseId = courseId;
-            document.getElementById('contentArea').classList.remove('d-none');
-
-            const { data: modules, error } = await window.sb
-                .from('course_modules')
-                .select(`
-                    *,
-                    module_items (*)
-                `)
-                .eq('course_id', courseId)
-                .order('order_index');
-
-            if (error) {
-                window.toast?.error('Failed to load modules');
-                return;
-            }
-
-            const container = document.getElementById('modulesContainer');
-            const emptyState = document.getElementById('emptyState');
-
-            if (!modules || modules.length === 0) {
-                container.innerHTML = '';
-                emptyState.classList.remove('d-none');
-                return;
-            }
-
-            emptyState.classList.add('d-none');
-            container.innerHTML = modules.map(module => renderModule(module)).join('');
+        emptyState.classList.add('d-none');
+        container.innerHTML = modules.map(module => renderModule(module)).join('');
         }
 
         function renderModule(module) {
@@ -641,7 +612,7 @@
                 .map(item => renderContentItem(item)).join('');
 
             return `
-                <div class="admin-table-container module-card mb-3">
+                < div class="admin-table-container module-card mb-3" >
                     <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-1 fw-bold">${module.title}</h5>
@@ -665,8 +636,8 @@
                             <i class="bi bi-plus me-2"></i>Add Content Item
                         </button>
                     </div>
-                </div>
-            `;
+                </div >
+                `;
         }
 
         function renderContentItem(item) {
@@ -677,11 +648,11 @@
                 assignment: 'file-earmark-text'
             };
 
-            const iconClass = `icon-${item.type}`;
+            const iconClass = `icon - ${item.type} `;
             const icon = icons[item.type] || 'file';
 
             return `
-                <div class="content-item d-flex align-items-center mb-2">
+                < div class="content-item d-flex align-items-center mb-2" >
                     <div class="item-icon ${iconClass} me-3">
                         <i class="bi bi-${icon}"></i>
                     </div>
@@ -698,8 +669,8 @@
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
-                </div>
-            `;
+                </div >
+                `;
         }
 
         function showAddModuleModal() {
@@ -776,7 +747,7 @@
             typeRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
                     document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-                    document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
+                    document.getElementById(`${radio.value} Fields`).classList.remove('d-none');
                 });
             });
         }
@@ -916,11 +887,11 @@
             document.getElementById('itemRequired').checked = item.is_required;
 
             // Set content type radio
-            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
+            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)} `).checked = true;
 
             // Show correct fields for the type
             document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-            document.getElementById(`${item.type}Fields`).classList.remove('d-none');
+            document.getElementById(`${item.type} Fields`).classList.remove('d-none');
 
             // Populate type-specific fields
             if (item.content) {
