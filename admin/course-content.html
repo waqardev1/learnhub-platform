@@ -67,6 +67,23 @@
             background: #e8f5e9;
             color: #388e3c;
         }
+
+        /* Course Cards */
+        .course-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--color-primary-500);
+        }
+
+        .course-card h5 {
+            color: var(--color-neutral-900);
+        }
     </style>
 </head>
 
@@ -135,20 +152,34 @@
             <p class="text-muted mb-0">Manage modules and learning materials for your courses</p>
         </div>
 
-        <!-- Course Selector -->
-        <div class="admin-table-container mb-4">
-            <div class="p-4">
-                <label class="form-label fw-bold mb-3">Select Course</label>
-                <select class="form-select form-select-lg" id="courseSelector" onchange="loadCourseModules()">
-                    <option value="">-- Select a Course --</option>
-                </select>
+        <!-- Course Selection Grid -->
+        <div id="courseSelectionArea">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Select a Course</h4>
+                <span class="text-muted" id="courseCount">0 courses</span>
+            </div>
+            <div id="coursesGrid" class="row g-4">
+                <!-- Course cards will be loaded here -->
+            </div>
+            <div id="noCoursesState" class="admin-table-container text-center py-5 d-none">
+                <i class="bi bi-book display-1 text-muted"></i>
+                <h4 class="mt-3">No Courses Found</h4>
+                <p class="text-muted">Create a course first in the Courses section</p>
+                <a href="courses.html" class="btn btn-admin-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Go to Courses
+                </a>
             </div>
         </div>
 
         <!-- Course Content Area -->
         <div id="contentArea" class="d-none">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold mb-0">Course Modules</h4>
+                <div>
+                    <button class="btn btn-link text-decoration-none p-0 mb-2" onclick="backToCourseSelection()">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Courses
+                    </button>
+                    <h4 class="fw-bold mb-0" id="selectedCourseTitle">Course Modules</h4>
+                </div>
                 <button class="btn btn-admin-primary" onclick="showAddModuleModal()">
                     <i class="bi bi-plus-circle me-2"></i>Add Module
                 </button>
@@ -402,21 +433,67 @@
         async function loadCourses() {
             const { data: courses, error } = await window.sb
                 .from('courses')
-                .select('id, title')
-                .order('title');
+                .select('id, title, description, category, level, created_at')
+                .order('created_at', { ascending: false });
 
             if (error) {
+                console.error('Failed to load courses:', error);
                 window.toast?.error('Failed to load courses');
                 return;
             }
 
-            const selector = document.getElementById('courseSelector');
-            courses.forEach(course => {
-                const option = document.createElement('option');
-                option.value = course.id;
-                option.textContent = course.title;
-                selector.appendChild(option);
-            });
+            const grid = document.getElementById('coursesGrid');
+            const noCoursesState = document.getElementById('noCoursesState');
+            const courseCount = document.getElementById('courseCount');
+
+            if (!courses || courses.length === 0) {
+                grid.innerHTML = '';
+                noCoursesState.classList.remove('d-none');
+                courseCount.textContent = '0 courses';
+                return;
+            }
+
+            noCoursesState.classList.add('d-none');
+            courseCount.textContent = `${courses.length} course${courses.length !== 1 ? 's' : ''}`;
+            grid.innerHTML = courses.map(course => renderCourseCard(course)).join('');
+        }
+
+        function renderCourseCard(course) {
+            const title = course.title.replace(/'/g, "\\'");
+            return `
+                <div class="col-md-6 col-lg-4">
+                    <div class="admin-table-container course-card h-100" onclick="selectCourse('${course.id}', '${title}')">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-2">${course.title}</h5>
+                            ${course.description ? `<p class="text-muted small mb-3">${course.description.substring(0, 100)}${course.description.length > 100 ? '...' : ''}</p>` : ''}
+                            <div class="d-flex gap-2 flex-wrap">
+                                ${course.category ? `<span class="badge bg-primary-subtle text-primary">${course.category}</span>` : ''}
+                                ${course.level ? `<span class="badge bg-secondary-subtle text-secondary">${course.level}</span>` : ''}
+                            </div>
+                            <div class="mt-3 pt-3 border-top">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    ${new Date(course.created_at).toLocaleDateString()}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectCourse(courseId, courseTitle) {
+            currentCourseId = courseId;
+            document.getElementById('selectedCourseTitle').textContent = courseTitle;
+            document.getElementById('courseSelectionArea').classList.add('d-none');
+            document.getElementById('contentArea').classList.remove('d-none');
+            loadCourseModules();
+        }
+
+        function backToCourseSelection() {
+            document.getElementById('contentArea').classList.add('d-none');
+            document.getElementById('courseSelectionArea').classList.remove('d-none');
+            currentCourseId = null;
         }
 
         async function loadCourseModules() {
@@ -604,7 +681,8 @@
         }
 
         async function saveContentItem() {
-            const itemId = document.getElementById(\'itemId\').value;
+            const itemId = document.getElementById(\'itemId\').value;
+
             const type = document.querySelector('input[name="contentType"]:checked').value;
             const moduleId = document.getElementById('itemModuleId').value;
 
@@ -632,7 +710,8 @@
                     .insert([itemData]);
             }
 
-            if (result.error) {
+            if (result.error) {
+
                 console.error('❌ Failed to save content item:', result.error);
                 window.toast?.error('Failed to save content item');
                 console.error(error);
