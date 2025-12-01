@@ -431,10 +431,14 @@
         });
 
         async function loadCourses() {
+            console.log('🔍 Loading courses...');
             const { data: courses, error } = await window.sb
                 .from('courses')
                 .select('id, title, description, category, level, created_at')
                 .order('created_at', { ascending: false });
+
+            console.log('📊 Courses data:', courses);
+            console.log('❌ Error:', error);
 
             if (error) {
                 console.error('Failed to load courses:', error);
@@ -447,12 +451,14 @@
             const courseCount = document.getElementById('courseCount');
 
             if (!courses || courses.length === 0) {
+                console.log('⚠️ No courses found or courses is null/empty');
                 grid.innerHTML = '';
                 noCoursesState.classList.remove('d-none');
                 courseCount.textContent = '0 courses';
                 return;
             }
 
+            console.log(`✅ Found ${courses.length} course(s)`);
             noCoursesState.classList.add('d-none');
             courseCount.textContent = `${courses.length} course${courses.length !== 1 ? 's' : ''}`;
             grid.innerHTML = courses.map(course => renderCourseCard(course)).join('');
