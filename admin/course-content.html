@@ -306,7 +306,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Content Item</h5>
+                    <h5 class="modal-title" id="contentItemModalTitle">Add Content Item</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -756,27 +756,9 @@
                 window.toast?.error('Failed to delete module');
                 return;
             }
-
-            window.toast?.success('Module deleted');
-            loadCourseModules();
-        }
-
-        function showAddContentModal(moduleId) {
-            document.getElementById('itemModuleId').value = moduleId;
-            document.getElementById('contentItemForm').reset();
-            document.getElementById('itemId').value = '';
-            document.getElementById('typeVideo').checked = true;
-            setupContentTypeToggle();
-            contentItemModal.show();
-        }
-
-        function setupContentTypeToggle() {
-            const typeRadios = document.querySelectorAll('input[name="contentType"]');
-            typeRadios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-                    document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
-                });
+            document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
+            document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
+        });
             });
         }
 
