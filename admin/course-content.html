@@ -710,21 +710,6 @@
             }
 
             console.log('✅ Module saved successfully');
-            window.toast?.success('Module saved successfully');
-            moduleModal.hide();
-            loadCourseModules();
-        }
-
-        async function deleteModule(moduleId) {
-            if (!confirm('Are you sure you want to delete this module? All content items will be deleted.')) return;
-
-            const { error } = await window.sb
-                .from('course_modules')
-            const type = document.getElementById('questionType').value;
-            const points = parseInt(document.getElementById('questionPoints').value) || 1;
-            const correctAnswer = document.getElementById('questionCorrectAnswer').value;
-            const explanation = document.getElementById('questionExplanation').value;
-
             if (!text || !correctAnswer) {
                 window.toast?.error('Please fill in all required fields');
                 return;
