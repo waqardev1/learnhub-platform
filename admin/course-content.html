@@ -720,228 +720,203 @@
 
             const { error } = await window.sb
                 .from('course_modules')
-                .delete()
-                .eq('id', moduleId);
+            const type = document.getElementById('questionType').value;
+            const points = parseInt(document.getElementById('questionPoints').value) || 1;
+            const correctAnswer = document.getElementById('questionCorrectAnswer').value;
+            const explanation = document.getElementById('questionExplanation').value;
 
-            if (error) {
-                window.toast?.error('Failed to delete module');
+            if (!text || !correctAnswer) {
+                window.toast?.error('Please fill in all required fields');
                 return;
-                        <div class="course-card-header" style="background: linear-gradient(135deg, ${bgStart}, ${bgEnd})">
-                            <div class="course-card-pattern"></div>
-                            <div class="course-initials">${initials}</div>
-                        </div>
-                        <div class="course-card-body">
-                            <div>
-                                <h5 class="course-title">${course.title}</h5>
-                                <p class="text-muted small mb-0">Click to manage content</p>
-                            </div>
-                            <div class="course-card-footer">
-                                <span class="text-muted small">
-                                    <i class="bi bi-collection-play me-1"></i> Manage Content
-                                </span>
-                            list.appendChild(div);
-        }
-
-                            function saveQuestion() {
-            const index = document.getElementById('questionIndex').value;
-                            const text = document.getElementById('questionText').value;
-                            const type = document.getElementById('questionType').value;
-                            const points = parseInt(document.getElementById('questionPoints').value) || 1;
-                            const correctAnswer = document.getElementById('questionCorrectAnswer').value;
-                            const explanation = document.getElementById('questionExplanation').value;
-
-                            if (!text || !correctAnswer) {
-                                window.toast?.error('Please fill in all required fields');
-                            return;
             }
 
-                            let options = [];
-                            if (type === 'multiple_choice') {
-                                document.querySelectorAll('.option-input').forEach(input => {
-                                    if (input.value.trim()) options.push(input.value.trim());
-                                });
-                            if (options.length < 2) {
-                                window.toast?.error('Multiple choice questions must have at least 2 options');
-                            return;
+            let options = [];
+            if (type === 'multiple_choice') {
+                document.querySelectorAll('.option-input').forEach(input => {
+                    if (input.value.trim()) options.push(input.value.trim());
+                });
+                if (options.length < 2) {
+                    window.toast?.error('Multiple choice questions must have at least 2 options');
+                    return;
                 }
-                            if (!options.includes(correctAnswer)) {
-                                window.toast?.error('Correct answer must match one of the options exactly');
-                            return;
+                if (!options.includes(correctAnswer)) {
+                    window.toast?.error('Correct answer must match one of the options exactly');
+                    return;
                 }
             }
 
-                            const question = {
-                                id: index ? currentQuizQuestions[index].id : crypto.randomUUID(),
-                            text,
-                            type,
-                            points,
-                            correct_answer: correctAnswer,
-                            explanation,
-                            options: type === 'multiple_choice' ? options : null
+            const question = {
+                id: index ? currentQuizQuestions[index].id : crypto.randomUUID(),
+                text,
+                type,
+                points,
+                correct_answer: correctAnswer,
+                explanation,
+                options: type === 'multiple_choice' ? options : null
             };
 
-                            if (index !== '') {
-                                currentQuizQuestions[index] = question;
+            if (index !== '') {
+                currentQuizQuestions[index] = question;
             } else {
-                                currentQuizQuestions.push(question);
+                currentQuizQuestions.push(question);
             }
 
-                            renderQuizQuestionsList();
-                            hideQuestionForm();
+            renderQuizQuestionsList();
+            hideQuestionForm();
         }
 
-                            function deleteQuestion(index) {
+        function deleteQuestion(index) {
             if (confirm('Delete this question?')) {
-                                currentQuizQuestions.splice(index, 1);
-                            renderQuizQuestionsList();
+                currentQuizQuestions.splice(index, 1);
+                renderQuizQuestionsList();
             }
         }
 
-                            function editQuestion(index) {
+        function editQuestion(index) {
             const q = currentQuizQuestions[index];
-                            document.getElementById('questionEditor').classList.remove('d-none');
-                            document.getElementById('questionIndex').value = index;
-                            document.getElementById('questionText').value = q.text;
-                            document.getElementById('questionType').value = q.type;
-                            document.getElementById('questionPoints').value = q.points;
-                            document.getElementById('questionCorrectAnswer').value = q.correct_answer;
-                            document.getElementById('questionExplanation').value = q.explanation || '';
+            document.getElementById('questionEditor').classList.remove('d-none');
+            document.getElementById('questionIndex').value = index;
+            document.getElementById('questionText').value = q.text;
+            document.getElementById('questionType').value = q.type;
+            document.getElementById('questionPoints').value = q.points;
+            document.getElementById('questionCorrectAnswer').value = q.correct_answer;
+            document.getElementById('questionExplanation').value = q.explanation || '';
 
-                            toggleQuestionOptions();
+            toggleQuestionOptions();
 
-                            if (q.type === 'multiple_choice' && q.options) {
+            if (q.type === 'multiple_choice' && q.options) {
                 const optionsList = document.getElementById('optionsList');
-                            optionsList.innerHTML = '';
+                optionsList.innerHTML = '';
                 q.options.forEach(opt => addOptionInput(opt));
             }
         }
 
-                            function buildContentObject(type) {
+        function buildContentObject(type) {
             switch (type) {
                 case 'video':
-                            return {
-                                youtube_url: document.getElementById('videoUrl').value,
-                            duration: parseInt(document.getElementById('videoDuration').value) || null
+                    return {
+                        youtube_url: document.getElementById('videoUrl').value,
+                        duration: parseInt(document.getElementById('videoDuration').value) || null
                     };
-                            case 'reading':
-                            return {
-                                content_html: document.getElementById('readingContent').value,
-                            estimated_time: parseInt(document.getElementById('readingTime').value) || null
+                case 'reading':
+                    return {
+                        content_html: document.getElementById('readingContent').value,
+                        estimated_time: parseInt(document.getElementById('readingTime').value) || null
                     };
-                            case 'quiz':
-                            return {
-                                passing_score: parseInt(document.getElementById('quizPassingScore').value),
-                            time_limit: parseInt(document.getElementById('quizTimeLimit').value) || null,
-                            attempts_allowed: parseInt(document.getElementById('quizAttempts').value),
-                            questions: currentQuizQuestions
+                case 'quiz':
+                    return {
+                        passing_score: parseInt(document.getElementById('quizPassingScore').value),
+                        time_limit: parseInt(document.getElementById('quizTimeLimit').value) || null,
+                        attempts_allowed: parseInt(document.getElementById('quizAttempts').value),
+                        questions: currentQuizQuestions
                     };
-                            case 'assignment':
-                            return {
-                                instructions: document.getElementById('assignmentInstructions').value,
-                            max_score: parseInt(document.getElementById('assignmentMaxScore').value),
-                            due_date: document.getElementById('assignmentDueDate').value || null,
-                            allow_late: document.getElementById('assignmentAllowLate').checked
+                case 'assignment':
+                    return {
+                        instructions: document.getElementById('assignmentInstructions').value,
+                        max_score: parseInt(document.getElementById('assignmentMaxScore').value),
+                        due_date: document.getElementById('assignmentDueDate').value || null,
+                        allow_late: document.getElementById('assignmentAllowLate').checked
                     };
             }
         }
 
-                            async function deleteContentItem(itemId) {
+        async function deleteContentItem(itemId) {
             if (!confirm('Are you sure you want to delete this content item?')) return;
 
-                            const {error} = await window.sb
-                            .from('module_items')
-                            .delete()
-                            .eq('id', itemId);
+            const { error } = await window.sb
+                .from('module_items')
+                .delete()
+                .eq('id', itemId);
 
-                            if (error) {
-                                window.toast?.error('Failed to delete content item');
-                            return;
+            if (error) {
+                window.toast?.error('Failed to delete content item');
+                return;
             }
 
-                            window.toast?.success('Content item deleted');
-                            loadCourseModules();
+            window.toast?.success('Content item deleted');
+            loadCourseModules();
         }
 
-                            async function editModule(moduleId) {
-            const {data: module, error } = await window.sb
-                            .from('course_modules')
-                            .select('*')
-                            .eq('id', moduleId)
-                            .single();
+        async function editModule(moduleId) {
+            const { data: module, error } = await window.sb
+                .from('course_modules')
+                .select('*')
+                .eq('id', moduleId)
+                .single();
 
-                            if (error) {
-                                window.toast?.error('Failed to load module');
-                            return;
+            if (error) {
+                window.toast?.error('Failed to load module');
+                return;
             }
 
-                            document.getElementById('moduleModalTitle').textContent = 'Edit Module';
-                            document.getElementById('moduleId').value = module.id;
-                            document.getElementById('moduleTitle').value = module.title;
-                            document.getElementById('moduleDescription').value = module.description || '';
-                            document.getElementById('moduleOrder').value = module.order_index;
-                            document.getElementById('modulePublished').checked = module.is_published;
-                            moduleModal.show();
+            document.getElementById('moduleModalTitle').textContent = 'Edit Module';
+            document.getElementById('moduleId').value = module.id;
+            document.getElementById('moduleTitle').value = module.title;
+            document.getElementById('moduleDescription').value = module.description || '';
+            document.getElementById('moduleOrder').value = module.order_index;
+            document.getElementById('modulePublished').checked = module.is_published;
+            moduleModal.show();
         }
 
-                            async function editContentItem(itemId) {
-            const {data: item, error } = await window.sb
-                            .from('module_items')
-                            .select('*')
-                            .eq('id', itemId)
-                            .single();
+        async function editContentItem(itemId) {
+            const { data: item, error } = await window.sb
+                .from('module_items')
+                .select('*')
+                .eq('id', itemId)
+                .single();
 
-                            if (error) {
-                                window.toast?.error('Failed to load content item');
-                            console.error('Error loading content item:', error);
-                            return;
+            if (error) {
+                window.toast?.error('Failed to load content item');
+                console.error('Error loading content item:', error);
+                return;
             }
 
-                            document.getElementById('contentItemModalTitle').textContent = 'Edit Content Item';
-                            document.getElementById('contentItemForm').reset();
-                            document.getElementById('itemId').value = item.id;
-                            document.getElementById('itemModuleId').value = item.module_id;
+            document.getElementById('contentItemModalTitle').textContent = 'Edit Content Item';
+            document.getElementById('contentItemForm').reset();
+            document.getElementById('itemId').value = item.id;
+            document.getElementById('itemModuleId').value = item.module_id;
 
-                            // Populate common fields
-                            document.getElementById('itemTitle').value = item.title;
-                            document.getElementById('itemDescription').value = item.description || '';
-                            document.getElementById('itemOrder').value = item.order_index;
-                            document.getElementById('itemRequired').checked = item.is_required;
+            // Populate common fields
+            document.getElementById('itemTitle').value = item.title;
+            document.getElementById('itemDescription').value = item.description || '';
+            document.getElementById('itemOrder').value = item.order_index;
+            document.getElementById('itemRequired').checked = item.is_required;
 
-                            // Set content type radio
-                            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
+            // Set content type radio
+            document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
 
             // Show correct fields for the type
             document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-                            document.getElementById(`${item.type}Fields`).classList.remove('d-none');
+            document.getElementById(`${item.type}Fields`).classList.remove('d-none');
 
-                            // Populate type-specific fields
-                            if (item.content) {
+            // Populate type-specific fields
+            if (item.content) {
                 switch (item.type) {
                     case 'video':
-                            document.getElementById('videoUrl').value = item.content.youtube_url || '';
-                            document.getElementById('videoDuration').value = item.content.duration || '';
-                            break;
-                            case 'reading':
-                            document.getElementById('readingContent').value = item.content.content_html || '';
-                            document.getElementById('readingTime').value = item.content.estimated_time || '';
-                            break;
-                            case 'quiz':
-                            document.getElementById('quizPassingScore').value = item.content.passing_score || '';
-                            document.getElementById('quizTimeLimit').value = item.content.time_limit || '';
-                            document.getElementById('quizAttempts').value = item.content.attempts_allowed || '';
-                            currentQuizQuestions = item.content.questions || [];
-                            renderQuizQuestionsList();
-                            break;
-                            case 'assignment':
-                            document.getElementById('assignmentInstructions').value = item.content.instructions || '';
-                            document.getElementById('assignmentMaxScore').value = item.content.max_score || '';
-                            document.getElementById('assignmentDueDate').value = item.content.due_date || '';
-                            document.getElementById('assignmentAllowLate').checked = item.content.allow_late || false;
-                            break;
+                        document.getElementById('videoUrl').value = item.content.youtube_url || '';
+                        document.getElementById('videoDuration').value = item.content.duration || '';
+                        break;
+                    case 'reading':
+                        document.getElementById('readingContent').value = item.content.content_html || '';
+                        document.getElementById('readingTime').value = item.content.estimated_time || '';
+                        break;
+                    case 'quiz':
+                        document.getElementById('quizPassingScore').value = item.content.passing_score || '';
+                        document.getElementById('quizTimeLimit').value = item.content.time_limit || '';
+                        document.getElementById('quizAttempts').value = item.content.attempts_allowed || '';
+                        currentQuizQuestions = item.content.questions || [];
+                        renderQuizQuestionsList();
+                        break;
+                    case 'assignment':
+                        document.getElementById('assignmentInstructions').value = item.content.instructions || '';
+                        document.getElementById('assignmentMaxScore').value = item.content.max_score || '';
+                        document.getElementById('assignmentDueDate').value = item.content.due_date || '';
+                        document.getElementById('assignmentAllowLate').checked = item.content.allow_late || false;
+                        break;
                 }
             }
 
-                            contentItemModal.show();
+            contentItemModal.show();
         }
     </script>
 </body>
