@@ -451,6 +451,7 @@
 
         let currentCourseId = null;
         let moduleModal, contentItemModal;
+        let currentQuizQuestions = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             moduleModal = new bootstrap.Modal(document.getElementById('moduleModal'));
@@ -791,6 +792,160 @@
             window.toast?.success('Content item saved successfully');
             contentItemModal.hide();
             loadCourseModules();
+        }
+
+        function renderQuizQuestionsList() {
+            const list = document.getElementById('quizQuestionsList');
+            if (currentQuizQuestions.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center text-muted py-3 border rounded bg-light">
+                        No questions added yet
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = currentQuizQuestions.map((q, index) => `
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge bg-secondary mb-2">${q.type.replace('_', ' ').toUpperCase()}</span>
+                                <span class="badge bg-info text-dark mb-2 ms-1">${q.points} pts</span>
+                                <p class="mb-1 fw-medium">${q.text}</p>
+                                <small class="text-muted">Answer: ${q.correct_answer}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-link" onclick="editQuestion(${index})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-link text-danger" onclick="deleteQuestion(${index})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showQuestionForm() {
+            document.getElementById('questionEditor').classList.remove('d-none');
+            document.getElementById('questionIndex').value = '';
+            document.getElementById('questionText').value = '';
+            document.getElementById('questionType').value = 'multiple_choice';
+            document.getElementById('questionPoints').value = '1';
+            document.getElementById('questionCorrectAnswer').value = '';
+            document.getElementById('questionExplanation').value = '';
+            toggleQuestionOptions();
+
+            // Reset options
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+            addOptionInput();
+            addOptionInput();
+        }
+
+        function hideQuestionForm() {
+            document.getElementById('questionEditor').classList.add('d-none');
+        }
+
+        function toggleQuestionOptions() {
+            const type = document.getElementById('questionType').value;
+            const container = document.getElementById('questionOptionsContainer');
+            if (type === 'multiple_choice') {
+                container.classList.remove('d-none');
+            } else {
+                container.classList.add('d-none');
+            }
+        }
+
+        function addOptionInput(value = '') {
+            const list = document.getElementById('optionsList');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <span class="input-group-text"><i class="bi bi-circle"></i></span>
+                <input type="text" class="form-control option-input" placeholder="Option text" value="${value}">
+                <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            list.appendChild(div);
+        }
+
+        function saveQuestion() {
+            const index = document.getElementById('questionIndex').value;
+            const text = document.getElementById('questionText').value;
+            const type = document.getElementById('questionType').value;
+            const points = parseInt(document.getElementById('questionPoints').value) || 1;
+            const correctAnswer = document.getElementById('questionCorrectAnswer').value;
+            const explanation = document.getElementById('questionExplanation').value;
+
+            if (!text || !correctAnswer) {
+                window.toast?.error('Please fill in all required fields');
+                return;
+            }
+
+            let options = [];
+            if (type === 'multiple_choice') {
+                document.querySelectorAll('.option-input').forEach(input => {
+                    if (input.value.trim()) options.push(input.value.trim());
+                });
+                if (options.length < 2) {
+                    window.toast?.error('Multiple choice questions must have at least 2 options');
+                    return;
+                }
+                if (!options.includes(correctAnswer)) {
+                    window.toast?.error('Correct answer must match one of the options exactly');
+                    return;
+                }
+            }
+
+            const question = {
+                id: index ? currentQuizQuestions[index].id : crypto.randomUUID(),
+                text,
+                type,
+                points,
+                correct_answer: correctAnswer,
+                explanation,
+                options: type === 'multiple_choice' ? options : null
+            };
+
+            if (index !== '') {
+                currentQuizQuestions[index] = question;
+            } else {
+                currentQuizQuestions.push(question);
+            }
+
+            renderQuizQuestionsList();
+            hideQuestionForm();
+        }
+
+        function deleteQuestion(index) {
+            if (confirm('Delete this question?')) {
+                currentQuizQuestions.splice(index, 1);
+                renderQuizQuestionsList();
+            }
+        }
+
+        function editQuestion(index) {
+            const q = currentQuizQuestions[index];
+            document.getElementById('questionEditor').classList.remove('d-none');
+            document.getElementById('questionIndex').value = index;
+            document.getElementById('questionText').value = q.text;
+            document.getElementById('questionType').value = q.type;
+            document.getElementById('questionPoints').value = q.points;
+            document.getElementById('questionCorrectAnswer').value = q.correct_answer;
+            document.getElementById('questionExplanation').value = q.explanation || '';
+
+            toggleQuestionOptions();
+
+            if (q.type === 'multiple_choice' && q.options) {
+                const optionsList = document.getElementById('optionsList');
+                optionsList.innerHTML = '';
+                q.options.forEach(opt => addOptionInput(opt));
+            }
         }
 
         function buildContentObject(type) {
