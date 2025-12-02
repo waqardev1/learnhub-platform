@@ -296,110 +296,60 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-admin-primary" onclick="saveModule()">Save Module</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    // Auth Check
+                    const adminUser = JSON.parse(localStorage.getItem('adminUser'));
+                    if (!adminUser || adminUser.role !== 'admin') window.location.href = 'login.html';
 
-    <!-- Add Content Item Modal -->
-    <div class="modal fade" id="contentItemModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="contentItemModalTitle">Add Content Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="itemModuleId">
-                    <input type="hidden" id="itemId">
-
-                    <!-- Content Type Selector -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Content Type</label>
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="contentType" id="typeVideo" value="video"
-                                checked>
-                            <label class="btn btn-outline-primary" for="typeVideo">
-                                <i class="bi bi-play-btn me-2"></i>Video
-                            </label>
-
-                            <input type="radio" class="btn-check" name="contentType" id="typeReading" value="reading">
-                            <label class="btn btn-outline-primary" for="typeReading">
-                                <i class="bi bi-book me-2"></i>Reading
-                            </label>
-
-                            <input type="radio" class="btn-check" name="contentType" id="typeQuiz" value="quiz">
-                            <label class="btn btn-outline-primary" for="typeQuiz">
-                                <i class="bi bi-question-circle me-2"></i>Quiz
-                            </label>
-
-                            <input type="radio" class="btn-check" name="contentType" id="typeAssignment"
-                                value="assignment">
-                            <label class="btn btn-outline-primary" for="typeAssignment">
-                                Content</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="../assets/js/ui-utils.js"></script>
-            <script src="../assets/js/supabase-client.js"></script>
-            <script>
-                // Auth Check
-                const adminUser = JSON.parse(localStorage.getItem('adminUser'));
-                if (!adminUser || adminUser.role !== 'admin') window.location.href = 'login.html';
-
-                // Display admin name
-                if (adminUser && adminUser.full_name) {
+                    // Display admin name
+                    if (adminUser && adminUser.full_name) {
                     document.getElementById('adminName').textContent = adminUser.full_name;
-                }
+                    }
 
-                // Setup theme toggle
-                const themeToggle = document.getElementById('adminThemeToggle');
-                const updateThemeIcon = () => {
+                    // Setup theme toggle
+                    const themeToggle = document.getElementById('adminThemeToggle');
+                    const updateThemeIcon = () => {
                     const theme = document.documentElement.getAttribute('data-theme');
                     const icon = themeToggle.querySelector('i');
                     icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
-                };
-                updateThemeIcon();
-                themeToggle.addEventListener('click', () => {
+                    };
+                    updateThemeIcon();
+                    themeToggle.addEventListener('click', () => {
                     window.themeManager.toggle();
                     updateThemeIcon();
-                });
+                    });
 
-                function logout() { localStorage.removeItem('adminUser'); window.location.href = 'login.html'; }
+                    function logout() { localStorage.removeItem('adminUser'); window.location.href = 'login.html'; }
 
-                function toggleSidebar() {
+                    function toggleSidebar() {
                     document.getElementById('adminSidebar').classList.toggle('show');
-                }
+                    }
 
-                let currentCourseId = null;
-                let moduleModal, contentItemModal;
-                let currentQuizQuestions = [];
+                    let currentCourseId = null;
+                    let moduleModal, contentItemModal;
+                    let currentQuizQuestions = [];
 
-                document.addEventListener('DOMContentLoaded', async () => {
+                    document.addEventListener('DOMContentLoaded', async () => {
                     moduleModal = new bootstrap.Modal(document.getElementById('moduleModal'));
                     contentItemModal = new bootstrap.Modal(document.getElementById('contentItemModal'));
 
                     await loadCourses();
                     setupContentTypeToggle();
-                });
+                    });
 
-                async function loadCourses() {
+                    async function loadCourses() {
                     console.log('🔍 Loading courses...');
                     const { data: courses, error } = await window.sb
-                        .from('courses')
-                        .select('id, title')
-                        .order('created_at', { ascending: false });
+                    .from('courses')
+                    .select('id, title')
+                    .order('created_at', { ascending: false });
 
                     console.log('📊 Courses data:', courses);
                     console.log('❌ Error:', error);
 
                     if (error) {
-                        console.error('Failed to load courses:', error);
-                        window.toast?.error('Failed to load courses');
-                        return;
+                    console.error('Failed to load courses:', error);
+                    window.toast?.error('Failed to load courses');
+                    return;
                     }
 
                     const grid = document.getElementById('coursesGrid');
@@ -407,41 +357,34 @@
                     const courseCount = document.getElementById('courseCount');
 
                     if (!courses || courses.length === 0) {
-                        console.log('⚠️ No courses found or courses is null/empty');
-                        grid.innerHTML = '';
-                        noCoursesState.classList.remove('d-none');
-                        courseCount.textContent = '0 courses';
-                        return;
+                    console.log('⚠️ No courses found or courses is null/empty');
+                    grid.innerHTML = '';
+                    noCoursesState.classList.remove('d-none');
+                    courseCount.textContent = '0 courses';
+                    return;
                     }
 
                     console.log(`✅ Found ${courses.length} course(s)`);
                     noCoursesState.classList.add('d-none');
                     courseCount.textContent = `${courses.length} course${courses.length !== 1 ? 's' : ''}`;
                     grid.innerHTML = courses.map(course => renderCourseCard(course)).join('');
-                }
+                    }
 
 
-                function getCourseColor(title) {
+                    function getCourseColor(title) {
                     const colors = [
-                        ['#4F46E5', '#3730A3'], // Indigo
-                        ['#0EA5E9', '#0284C7'], // Sky
-                        ['#10B981', '#059669'], // Emerald
-                        ['#F59E0B', '#D97706'], // Amber
-                        ['#EC4899', '#DB2777'], // Pink
-                        ['#8B5CF6', '#7C3AED'], // Violet
-                        ['#F43F5E', '#E11D48'], // Rose
-                        ['#06B6D4', '#0891B2'], // Cyan
+                    ['#4F46E5', '#3730A3'], // Indigo
+                    ['#0EA5E9', '#0284C7'], // Sky
+                    ['#10B981', '#059669'], // Emerald
+                    ['#F59E0B', '#D97706'], // Amber
+                    ['#EC4899', '#DB2777'], // Pink
+                    ['#8B5CF6', '#7C3AED'], // Violet
+                    ['#F43F5E', '#E11D48'], // Rose
+                    ['#06B6D4', '#0891B2'], // Cyan
                     ];
                     let hash = 0;
-                    for (let i = 0; i < title.length; i++) {
-                        hash = title.charCodeAt(i) + ((hash << 5) - hash);
-                    }
-                    return colors[Math.abs(hash) % colors.length];
-                }
-
-                function getInitials(title) {
-                    return title
-                        .split(' ')
+                    for (let i = 0; i < title.length; i++) { hash=title.charCodeAt(i) + ((hash << 5) - hash); } return
+                        colors[Math.abs(hash) % colors.length]; } function getInitials(title) { return title .split(' ')
                         .map(word => word[0])
                         .slice(0, 2)
                         .join('')
@@ -449,93 +392,91 @@
                 }
 
                 function renderCourseCard(course) {
-                    const title = course.title.replace(/'/g, "\'");
-                    const [bgStart, bgEnd] = getCourseColor(course.title);
-                    const initials = getInitials(course.title);
-
-                    return `
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="course-card" onclick="selectCourse('${course.id}', '${title}')">
-                        <div class="course-card-header" style="background: linear-gradient(135deg, ${bgStart}, ${bgEnd})">
-                            <div class="course-card-pattern"></div>
-                            <div class="course-initials">${initials}</div>
-                        </div>
-                        <div class="course-card-body">
-                            <div>
-                                <h5 class="course-title">${course.title}</h5>
-                                <p class="text-muted small mb-0">Click to manage content</p>
+                    const title = course.title.replace(/' /g, "\'" ); const [bgStart,
+                        bgEnd]=getCourseColor(course.title); const initials=getInitials(course.title); return ` <div
+                        class="col-md-6 col-lg-4 mb-4">
+                        <div class="course-card" onclick="selectCourse('${course.id}', '${title}')">
+                            <div class="course-card-header"
+                                style="background: linear-gradient(135deg, ${bgStart}, ${bgEnd})">
+                                <div class="course-card-pattern"></div>
+                                <div class="course-initials">${initials}</div>
                             </div>
-                            <div class="course-card-footer">
-                                <span class="text-muted small">
-                                    <i class="bi bi-collection-play me-1"></i> Manage Content
-                                </span>
-                                <button class="btn-manage">
-                                    <i class="bi bi-arrow-right"></i>
-                                </button>
+                            <div class="course-card-body">
+                                <div>
+                                    <h5 class="course-title">${course.title}</h5>
+                                    <p class="text-muted small mb-0">Click to manage content</p>
+                                </div>
+                                <div class="course-card-footer">
+                                    <span class="text-muted small">
+                                        <i class="bi bi-collection-play me-1"></i> Manage Content
+                                    </span>
+                                    <button class="btn-manage">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
                 </div>
-            `;
+                `;
                 }
 
                 function selectCourse(courseId, courseTitle) {
-                    currentCourseId = courseId;
-                    document.getElementById('selectedCourseTitle').textContent = courseTitle;
-                    document.getElementById('courseSelectionArea').classList.add('d-none');
-                    document.getElementById('contentArea').classList.remove('d-none');
-                    loadCourseModules();
+                currentCourseId = courseId;
+                document.getElementById('selectedCourseTitle').textContent = courseTitle;
+                document.getElementById('courseSelectionArea').classList.add('d-none');
+                document.getElementById('contentArea').classList.remove('d-none');
+                loadCourseModules();
                 }
 
 
                 async function loadCourseModules() {
-                    if (!currentCourseId) {
-                        console.warn('⚠️ No course selected');
-                        document.getElementById('contentArea').classList.add('d-none');
-                        return;
-                    }
+                if (!currentCourseId) {
+                console.warn('⚠️ No course selected');
+                document.getElementById('contentArea').classList.add('d-none');
+                return;
+                }
 
-                    console.log(`🔍 Loading modules for course: ${currentCourseId}`);
-                    document.getElementById('contentArea').classList.remove('d-none');
+                console.log(`🔍 Loading modules for course: ${currentCourseId}`);
+                document.getElementById('contentArea').classList.remove('d-none');
 
-                    const { data: modules, error } = await window.sb
-                        .from('course_modules')
-                        .select(`
-                    *,
-                    module_items (*)
+                const { data: modules, error } = await window.sb
+                .from('course_modules')
+                .select(`
+                *,
+                module_items (*)
                 `)
-                        .eq('course_id', currentCourseId)
-                        .order('order_index');
+                .eq('course_id', currentCourseId)
+                .order('order_index');
 
-                    if (error) {
-                        console.error('❌ Failed to load modules:', error);
-                        window.toast?.error('Failed to load modules');
-                        return;
-                    }
+                if (error) {
+                console.error('❌ Failed to load modules:', error);
+                window.toast?.error('Failed to load modules');
+                return;
+                }
 
-                    const container = document.getElementById('modulesContainer');
-                    const emptyState = document.getElementById('emptyState');
+                const container = document.getElementById('modulesContainer');
+                const emptyState = document.getElementById('emptyState');
 
-                    if (!modules || modules.length === 0) {
-                        container.innerHTML = '';
-                        emptyState.classList.remove('d-none');
-                        return;
-                    }
+                if (!modules || modules.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('d-none');
+                return;
+                }
 
-                    emptyState.classList.add('d-none');
-                    container.innerHTML = modules.map(module => renderModule(module)).join('');
+                emptyState.classList.add('d-none');
+                container.innerHTML = modules.map(module => renderModule(module)).join('');
                 }
 
 
 
 
                 function renderModule(module) {
-                    const items = module.module_items || [];
-                    const itemsHtml = items
-                        .sort((a, b) => a.order_index - b.order_index)
-                        .map(item => renderContentItem(item)).join('');
+                const items = module.module_items || [];
+                const itemsHtml = items
+                .sort((a, b) => a.order_index - b.order_index)
+                .map(item => renderContentItem(item)).join('');
 
-                    return `
+                return `
                 <div class="admin-table-container module-card mb-3">
                     <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
                         <div>
@@ -556,26 +497,27 @@
                     </div>
                     <div class="p-4">
                         ${itemsHtml || '<p class="text-muted mb-0">No content items yet</p>'}
-                        <button class="btn btn-sm btn-admin-secondary mt-3" onclick="showAddContentModal('${module.id}')">
+                        <button class="btn btn-sm btn-admin-secondary mt-3"
+                            onclick="showAddContentModal('${module.id}')">
                             <i class="bi bi-plus me-2"></i>Add Content Item
                         </button>
                     </div>
                 </div>
-            `;
+                `;
                 }
 
                 function renderContentItem(item) {
-                    const icons = {
-                        video: 'play-btn',
-                        reading: 'book',
-                        quiz: 'question-circle',
-                        assignment: 'file-earmark-text'
-                    };
+                const icons = {
+                video: 'play-btn',
+                reading: 'book',
+                quiz: 'question-circle',
+                assignment: 'file-earmark-text'
+                };
 
-                    const iconClass = `icon-${item.type}`;
-                    const icon = icons[item.type] || 'file';
+                const iconClass = `icon-${item.type}`;
+                const icon = icons[item.type] || 'file';
 
-                    return `
+                return `
                 <div class="content-item d-flex align-items-center mb-2">
                     <div class="item-icon ${iconClass} me-3">
                         <i class="bi bi-${icon}"></i>
@@ -594,342 +536,308 @@
                         </button>
                     </div>
                 </div>
-            `;
+                `;
                 }
 
                 function showAddModuleModal() {
-                    document.getElementById('moduleModalTitle').textContent = 'Add Module';
-                    document.getElementById('moduleForm').reset();
-                    document.getElementById('moduleId').value = '';
-                    moduleModal.show();
+                document.getElementById('moduleModalTitle').textContent = 'Add Module';
+                document.getElementById('moduleForm').reset();
+                document.getElementById('moduleId').value = '';
+                moduleModal.show();
                 }
 
                 async function saveModule() {
-                    const moduleId = document.getElementById('moduleId').value;
-                    const moduleData = {
-                        course_id: currentCourseId,
-                        title: document.getElementById('moduleTitle').value,
-                        description: document.getElementById('moduleDescription').value,
-                        order_index: parseInt(document.getElementById('moduleOrder').value),
-                        is_published: document.getElementById('modulePublished').checked
-                    };
+                const moduleId = document.getElementById('moduleId').value;
+                const moduleData = {
+                course_id: currentCourseId,
+                title: document.getElementById('moduleTitle').value,
+                description: document.getElementById('moduleDescription').value,
+                order_index: parseInt(document.getElementById('moduleOrder').value),
+                is_published: document.getElementById('modulePublished').checked
+                };
 
-                    console.log('💾 Saving module:', moduleData);
+                console.log('💾 Saving module:', moduleData);
 
-                    let result;
-                    if (moduleId) {
-                        result = await window.sb
-                            .from('course_modules')
-                            .update(moduleData)
-                            .eq('id', moduleId);
-                    } else {
-                        result = await window.sb
-                            .from('course_modules')
-                            .insert([moduleData]);
-                    }
+                let result;
+                if (moduleId) {
+                result = await window.sb
+                .from('course_modules')
+                .update(moduleData)
+                .eq('id', moduleId);
+                } else {
+                result = await window.sb
+                .from('course_modules')
+                .insert([moduleData]);
+                }
 
-                    if (result.error) {
-                        console.error('❌ Failed to save module:', result.error);
-                        window.toast?.error('Failed to save module');
-                        return;
-                    }
+                if (result.error) {
+                console.error('❌ Failed to save module:', result.error);
+                window.toast?.error('Failed to save module');
+                return;
+                }
 
-                    console.log('✅ Module saved successfully');
-                    window.toast?.success('Module saved successfully');
-                    moduleModal.hide();
-                    loadCourseModules();
+                console.log('✅ Module saved successfully');
+                window.toast?.success('Module saved successfully');
+                moduleModal.hide();
+                loadCourseModules();
                 }
 
                 async function deleteModule(moduleId) {
-                    if (!confirm('Are you sure you want to delete this module? All content items will be deleted.')) return;
+                if (!confirm('Are you sure you want to delete this module? All content items will be deleted.')) return;
 
-                    const { error } = await window.sb
-                        .from('course_modules')
-                        .delete()
-                        .eq('id', moduleId);
+                const { error } = await window.sb
+                .from('course_modules')
+                .delete()
+                .eq('id', moduleId);
 
-                    if (error) {
-                        window.toast?.error('Failed to delete module');
-                        return;
-                    }
+                if (error) {
+                window.toast?.error('Failed to delete module');
+                return;
+                }
 
-                    window.toast?.success('Module deleted');
-                    loadCourseModules();
+                window.toast?.success('Module deleted');
+                loadCourseModules();
                 }
 
                 function showAddContentModal(moduleId) {
-                    document.getElementById('contentItemModalTitle').textContent = 'Add Content Item';
-                    document.getElementById('itemModuleId').value = moduleId;
-                    document.getElementById('contentItemForm').reset();
-                    document.getElementById('itemId').value = '';
-                    document.getElementById('typeVideo').checked = true;
-                    currentQuizQuestions = [];
-                    renderQuizQuestionsList();
-                    setupContentTypeToggle();
-                    contentItemModal.show();
+                document.getElementById('contentItemModalTitle').textContent = 'Add Content Item';
+                document.getElementById('itemModuleId').value = moduleId;
+                document.getElementById('contentItemForm').reset();
+                document.getElementById('itemId').value = '';
+                document.getElementById('typeVideo').checked = true;
+                currentQuizQuestions = [];
+                renderQuizQuestionsList();
+                setupContentTypeToggle();
+                contentItemModal.show();
                 }
 
                 function setupContentTypeToggle() {
-                    const typeRadios = document.querySelectorAll('input[name="contentType"]');
-                    typeRadios.forEach(radio => {
-                        radio.addEventListener('change', () => {
-                            document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
-                            document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
-                        });
-                    });
+                const typeRadios = document.querySelectorAll('input[name="contentType"]');
+                typeRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
+                document.getElementById(`${radio.value}Fields`).classList.remove('d-none');
+                });
+                });
                 }
 
                 async function saveContentItem() {
-                    const itemId = document.getElementById('itemId').value;
+                const itemId = document.getElementById('itemId').value;
 
-                    const type = document.querySelector('input[name="contentType"]:checked').value;
-                    const moduleId = document.getElementById('itemModuleId').value;
+                const type = document.querySelector('input[name="contentType"]:checked').value;
+                const moduleId = document.getElementById('itemModuleId').value;
 
-                    const itemData = {
-                        module_id: moduleId,
-                        type: type,
-                        title: document.getElementById('itemTitle').value,
-                        description: document.getElementById('itemDescription').value,
-                        order_index: parseInt(document.getElementById('itemOrder').value),
-                        is_required: document.getElementById('itemRequired').checked,
-                        content: buildContentObject(type)
-                    };
+                const itemData = {
+                module_id: moduleId,
+                type: type,
+                title: document.getElementById('itemTitle').value,
+                description: document.getElementById('itemDescription').value,
+                order_index: parseInt(document.getElementById('itemOrder').value),
+                is_required: document.getElementById('itemRequired').checked,
+                content: buildContentObject(type)
+                };
 
-                    console.log('💾 Saving content item:', itemData);
+                console.log('💾 Saving content item:', itemData);
 
-                    let result;
-                    if (itemId) {
-                        result = await window.sb
-                            .from('module_items')
-                            .update(itemData)
-                            .eq('id', itemId);
-                    } else {
-                        result = await window.sb
-                            .from('module_items')
-                            .insert([itemData]);
-                    }
+                let result;
+                if (itemId) {
+                result = await window.sb
+                .from('module_items')
+                .update(itemData)
+                .eq('id', itemId);
+                } else {
+                result = await window.sb
+                .from('module_items')
+                .insert([itemData]);
+                }
 
-                    if (result.error) {
-                        console.error('❌ Failed to save content item:', result.error);
-                        window.toast?.error('Failed to save content item');
-                        return;
-                    }
+                if (result.error) {
+                console.error('❌ Failed to save content item:', result.error);
+                window.toast?.error('Failed to save content item');
+                return;
+                }
 
-                    console.log('✅ Content item saved successfully');
-                    window.toast?.success('Content item saved successfully');
-                    contentItemModal.hide();
-                    loadCourseModules();
+                console.log('✅ Content item saved successfully');
+                window.toast?.success('Content item saved successfully');
+                contentItemModal.hide();
+                loadCourseModules();
                 }
 
                 function renderQuizQuestionsList() {
-                    const list = document.getElementById('quizQuestionsList');
-                    if (currentQuizQuestions.length === 0) {
-                        list.innerHTML = `
-                    <div class="text-center text-muted py-3 border rounded bg-light">
-                        No questions added yet
-                    </div>
-                    `;
-                        return;
-                    }
+                const list = document.getElementById('quizQuestionsList');
+                if (currentQuizQuestions.length === 0) {
+                list.innerHTML = `
+                <div class="text-center text-muted py-3 border rounded bg-light">
+                    No questions added yet
+                </div>
+                `;
+                return;
+                }
 
-                    list.innerHTML = currentQuizQuestions.map((q, index) => `
-                    <div class="card mb-2">
-                        <div class="card-body p-3">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge bg-secondary mb-2">${q.type.replace('_', ' ').toUpperCase()}</span>
-                                    <span class="badge bg-info text-dark mb-2 ms-1">${q.points} pts</span>
-                                    <p class="mb-1 fw-medium">${q.text}</p>
-                                    <small class="text-muted">Answer: ${q.correct_answer}</small>
-                                </div>
-                                <div>
-                                    <button class="btn btn-sm btn-link" onclick="editQuestion(${index})">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-link text-danger" onclick="deleteQuestion(${index})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
+                list.innerHTML = currentQuizQuestions.map((q, index) => `
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge bg-secondary mb-2">${q.type.replace('_', ' ').toUpperCase()}</span>
+                                <span class="badge bg-info text-dark mb-2 ms-1">${q.points} pts</span>
+                                <p class="mb-1 fw-medium">${q.text}</p>
+                                <small class="text-muted">Answer: ${q.correct_answer}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-link" onclick="editQuestion(${index})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-link text-danger" onclick="deleteQuestion(${index})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </div>
+                    </div>
                 </div>
-                    `).join('');
+                `).join('');
                 }
 
                 function showQuestionForm() {
-                    document.getElementById('questionEditor').classList.remove('d-none');
-                    document.getElementById('questionIndex').value = '';
-                    document.getElementById('questionText').value = '';
-                    document.getElementById('questionType').value = 'multiple_choice';
-                    document.getElementById('questionPoints').value = '1';
-                    document.getElementById('questionCorrectAnswer').value = '';
-                    document.getElementById('questionExplanation').value = '';
-                    toggleQuestionOptions();
+                document.getElementById('questionEditor').classList.remove('d-none');
+                document.getElementById('questionIndex').value = '';
+                document.getElementById('questionText').value = '';
+                document.getElementById('questionType').value = 'multiple_choice';
+                document.getElementById('questionPoints').value = '1';
+                document.getElementById('questionCorrectAnswer').value = '';
+                document.getElementById('questionExplanation').value = '';
+                toggleQuestionOptions();
 
-                    // Reset options
-                    const optionsList = document.getElementById('optionsList');
-                    optionsList.innerHTML = '';
-                    addOptionInput();
-                    addOptionInput();
+                // Reset options
+                const optionsList = document.getElementById('optionsList');
+                optionsList.innerHTML = '';
+                addOptionInput();
+                addOptionInput();
                 }
 
                 function hideQuestionForm() {
-                    document.getElementById('questionEditor').classList.add('d-none');
+                document.getElementById('questionEditor').classList.add('d-none');
                 }
 
                 function toggleQuestionOptions() {
-                    const type = document.getElementById('questionType').value;
-                    const container = document.getElementById('questionOptionsContainer');
-                    if (type === 'multiple_choice') {
-                        container.classList.remove('d-none');
-                    } else {
-                        container.classList.add('d-none');
-                    }
+                const type = document.getElementById('questionType').value;
+                const container = document.getElementById('questionOptionsContainer');
+                if (type === 'multiple_choice') {
+                container.classList.remove('d-none');
+                } else {
+                container.classList.add('d-none');
+                }
                 }
 
                 function addOptionInput(value = '') {
-                    const list = document.getElementById('optionsList');
-                    const div = document.createElement('div');
-                    div.className = 'input-group mb-2';
-                    div.innerHTML = `
-                    <span class="input-group-text"><i class="bi bi-circle"></i></span>
-                        <input type="text" class="form-control option-input" placeholder="Option text" value="${value}">
-                            <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
-                                <i class="bi bi-x"></i>
-                            </button>
-                            `;
-                    list.appendChild(div);
+                const list = document.getElementById('optionsList');
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2';
+                div.innerHTML = `
+                <span class="input-group-text"><i class="bi bi-circle"></i></span>
+                <input type="text" class="form-control option-input" placeholder="Option text" value="${value}">
+                <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+                `;
+                list.appendChild(div);
                 }
 
                 function saveQuestion() {
-                    const index = document.getElementById('questionIndex').value;
-                    const text = document.getElementById('questionText').value;
-                    const type = document.getElementById('questionType').value;
-                    const points = parseInt(document.getElementById('questionPoints').value) || 1;
-                    const correctAnswer = document.getElementById('questionCorrectAnswer').value;
-                    const explanation = document.getElementById('questionExplanation').value;
-                    if (!text || !correctAnswer) {
-                        window.toast?.error('Please fill in all required fields');
-                        return;
-                    }
-
-                    let options = [];
-                    if (type === 'multiple_choice') {
-                        document.querySelectorAll('.option-input').forEach(input => {
-                            if (input.value.trim()) options.push(input.value.trim());
-                        });
-                        if (options.length < 2) {
-                            window.toast?.error('Multiple choice questions must have at least 2 options');
-                            return;
-                        }
-                        if (!options.includes(correctAnswer)) {
-                            window.toast?.error('Correct answer must match one of the options exactly');
-                            return;
-                        }
-                    }
-
-                    const question = {
-                        id: index ? currentQuizQuestions[index].id : crypto.randomUUID(),
-                        text,
-                        type,
-                        points,
-                        correct_answer: correctAnswer,
-                        explanation,
-                        options: type === 'multiple_choice' ? options : null
-                    };
-
-                    if (index !== '') {
-                        currentQuizQuestions[index] = question;
-                    } else {
-                        currentQuizQuestions.push(question);
-                    }
-
-                    renderQuizQuestionsList();
-                    hideQuestionForm();
+                const index = document.getElementById('questionIndex').value;
+                const text = document.getElementById('questionText').value;
+                const type = document.getElementById('questionType').value;
+                const points = parseInt(document.getElementById('questionPoints').value) || 1;
+                const correctAnswer = document.getElementById('questionCorrectAnswer').value;
+                const explanation = document.getElementById('questionExplanation').value;
+                if (!text || !correctAnswer) {
+                window.toast?.error('Please fill in all required fields');
+                return;
                 }
 
-                function deleteQuestion(index) {
-                    if (confirm('Delete this question?')) {
-                        currentQuizQuestions.splice(index, 1);
-                        renderQuizQuestionsList();
-                    }
-                }
-
-                function editQuestion(index) {
-                    const q = currentQuizQuestions[index];
+                let options = [];
+                if (type === 'multiple_choice') {
+                document.querySelectorAll('.option-input').forEach(input => {
+                if (input.value.trim()) options.push(input.value.trim());
+                });
+                if (options.length < 2) { window.toast?.error('Multiple choice questions must have at least 2 options');
+                    return; } if (!options.includes(correctAnswer)) { window.toast?.error('Correct answer must match one
+                    of the options exactly'); return; } } const question={ id: index ? currentQuizQuestions[index].id :
+                    crypto.randomUUID(), text, type, points, correct_answer: correctAnswer, explanation, options:
+                    type==='multiple_choice' ? options : null }; if (index !=='' ) {
+                    currentQuizQuestions[index]=question; } else { currentQuizQuestions.push(question); }
+                    renderQuizQuestionsList(); hideQuestionForm(); } function deleteQuestion(index) { if
+                    (confirm('Delete this question?')) { currentQuizQuestions.splice(index, 1);
+                    renderQuizQuestionsList(); } } function editQuestion(index) { const q=currentQuizQuestions[index];
                     document.getElementById('questionEditor').classList.remove('d-none');
-                    document.getElementById('questionIndex').value = index;
-                    document.getElementById('questionText').value = q.text;
-                    document.getElementById('questionType').value = q.type;
-                    document.getElementById('questionPoints').value = q.points;
-                    document.getElementById('questionCorrectAnswer').value = q.correct_answer;
-                    document.getElementById('questionExplanation').value = q.explanation || '';
-
-                    toggleQuestionOptions();
-
-                    if (q.type === 'multiple_choice' && q.options) {
-                        const optionsList = document.getElementById('optionsList');
-                        optionsList.innerHTML = '';
-                        q.options.forEach(opt => addOptionInput(opt));
+                    document.getElementById('questionIndex').value=index;
+                    document.getElementById('questionText').value=q.text;
+                    document.getElementById('questionType').value=q.type;
+                    document.getElementById('questionPoints').value=q.points;
+                    document.getElementById('questionCorrectAnswer').value=q.correct_answer;
+                    document.getElementById('questionExplanation').value=q.explanation || '' ; toggleQuestionOptions();
+                    if (q.type==='multiple_choice' && q.options) { const
+                    optionsList=document.getElementById('optionsList'); optionsList.innerHTML='' ;
+                    q.options.forEach(opt=> addOptionInput(opt));
                     }
-                }
+                    }
 
-                function buildContentObject(type) {
+                    function buildContentObject(type) {
                     switch (type) {
-                        case 'video':
-                            return {
-                                youtube_url: document.getElementById('videoUrl').value,
-                                duration: parseInt(document.getElementById('videoDuration').value) || null
-                            };
-                        case 'reading':
-                            return {
-                                content_html: document.getElementById('readingContent').value,
-                                estimated_time: parseInt(document.getElementById('readingTime').value) || null
-                            };
-                        case 'quiz':
-                            return {
-                                passing_score: parseInt(document.getElementById('quizPassingScore').value),
-                                time_limit: parseInt(document.getElementById('quizTimeLimit').value) || null,
-                                attempts_allowed: parseInt(document.getElementById('quizAttempts').value),
-                                questions: currentQuizQuestions
-                            };
-                        case 'assignment':
-                            return {
-                                instructions: document.getElementById('assignmentInstructions').value,
-                                max_score: parseInt(document.getElementById('assignmentMaxScore').value),
-                                due_date: document.getElementById('assignmentDueDate').value || null,
-                                allow_late: document.getElementById('assignmentAllowLate').checked
-                            };
+                    case 'video':
+                    return {
+                    youtube_url: document.getElementById('videoUrl').value,
+                    duration: parseInt(document.getElementById('videoDuration').value) || null
+                    };
+                    case 'reading':
+                    return {
+                    content_html: document.getElementById('readingContent').value,
+                    estimated_time: parseInt(document.getElementById('readingTime').value) || null
+                    };
+                    case 'quiz':
+                    return {
+                    passing_score: parseInt(document.getElementById('quizPassingScore').value),
+                    time_limit: parseInt(document.getElementById('quizTimeLimit').value) || null,
+                    attempts_allowed: parseInt(document.getElementById('quizAttempts').value),
+                    questions: currentQuizQuestions
+                    };
+                    case 'assignment':
+                    return {
+                    instructions: document.getElementById('assignmentInstructions').value,
+                    max_score: parseInt(document.getElementById('assignmentMaxScore').value),
+                    due_date: document.getElementById('assignmentDueDate').value || null,
+                    allow_late: document.getElementById('assignmentAllowLate').checked
+                    };
                     }
-                }
+                    }
 
-                async function deleteContentItem(itemId) {
+                    async function deleteContentItem(itemId) {
                     if (!confirm('Are you sure you want to delete this content item?')) return;
 
                     const { error } = await window.sb
-                        .from('module_items')
-                        .delete()
-                        .eq('id', itemId);
+                    .from('module_items')
+                    .delete()
+                    .eq('id', itemId);
 
                     if (error) {
-                        window.toast?.error('Failed to delete content item');
-                        return;
+                    window.toast?.error('Failed to delete content item');
+                    return;
                     }
 
                     window.toast?.success('Content item deleted');
                     loadCourseModules();
-                }
+                    }
 
-                async function editModule(moduleId) {
+                    async function editModule(moduleId) {
                     const { data: module, error } = await window.sb
-                        .from('course_modules')
-                        .select('*')
-                        .eq('id', moduleId)
-                        .single();
+                    .from('course_modules')
+                    .select('*')
+                    .eq('id', moduleId)
+                    .single();
 
                     if (error) {
-                        window.toast?.error('Failed to load module');
-                        return;
+                    window.toast?.error('Failed to load module');
+                    return;
                     }
 
                     document.getElementById('moduleModalTitle').textContent = 'Edit Module';
@@ -939,19 +847,19 @@
                     document.getElementById('moduleOrder').value = module.order_index;
                     document.getElementById('modulePublished').checked = module.is_published;
                     moduleModal.show();
-                }
+                    }
 
-                async function editContentItem(itemId) {
+                    async function editContentItem(itemId) {
                     const { data: item, error } = await window.sb
-                        .from('module_items')
-                        .select('*')
-                        .eq('id', itemId)
-                        .single();
+                    .from('module_items')
+                    .select('*')
+                    .eq('id', itemId)
+                    .single();
 
                     if (error) {
-                        window.toast?.error('Failed to load content item');
-                        console.error('Error loading content item:', error);
-                        return;
+                    window.toast?.error('Failed to load content item');
+                    console.error('Error loading content item:', error);
+                    return;
                     }
 
                     document.getElementById('contentItemModalTitle').textContent = 'Edit Content Item';
@@ -966,7 +874,8 @@
                     document.getElementById('itemRequired').checked = item.is_required;
 
                     // Set content type radio
-                    document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked = true;
+                    document.getElementById(`type${item.type.charAt(0).toUpperCase() + item.type.slice(1)}`).checked =
+                    true;
 
                     // Show correct fields for the type
                     document.querySelectorAll('.content-type-fields').forEach(el => el.classList.add('d-none'));
@@ -974,34 +883,34 @@
 
                     // Populate type-specific fields
                     if (item.content) {
-                        switch (item.type) {
-                            case 'video':
-                                document.getElementById('videoUrl').value = item.content.youtube_url || '';
-                                document.getElementById('videoDuration').value = item.content.duration || '';
-                                break;
-                            case 'reading':
-                                document.getElementById('readingContent').value = item.content.content_html || '';
-                                document.getElementById('readingTime').value = item.content.estimated_time || '';
-                                break;
-                            case 'quiz':
-                                document.getElementById('quizPassingScore').value = item.content.passing_score || '';
-                                document.getElementById('quizTimeLimit').value = item.content.time_limit || '';
-                                document.getElementById('quizAttempts').value = item.content.attempts_allowed || '';
-                                currentQuizQuestions = item.content.questions || [];
-                                renderQuizQuestionsList();
-                                break;
-                            case 'assignment':
-                                document.getElementById('assignmentInstructions').value = item.content.instructions || '';
-                                document.getElementById('assignmentMaxScore').value = item.content.max_score || '';
-                                document.getElementById('assignmentDueDate').value = item.content.due_date || '';
-                                document.getElementById('assignmentAllowLate').checked = item.content.allow_late || false;
-                                break;
-                        }
+                    switch (item.type) {
+                    case 'video':
+                    document.getElementById('videoUrl').value = item.content.youtube_url || '';
+                    document.getElementById('videoDuration').value = item.content.duration || '';
+                    break;
+                    case 'reading':
+                    document.getElementById('readingContent').value = item.content.content_html || '';
+                    document.getElementById('readingTime').value = item.content.estimated_time || '';
+                    break;
+                    case 'quiz':
+                    document.getElementById('quizPassingScore').value = item.content.passing_score || '';
+                    document.getElementById('quizTimeLimit').value = item.content.time_limit || '';
+                    document.getElementById('quizAttempts').value = item.content.attempts_allowed || '';
+                    currentQuizQuestions = item.content.questions || [];
+                    renderQuizQuestionsList();
+                    break;
+                    case 'assignment':
+                    document.getElementById('assignmentInstructions').value = item.content.instructions || '';
+                    document.getElementById('assignmentMaxScore').value = item.content.max_score || '';
+                    document.getElementById('assignmentDueDate').value = item.content.due_date || '';
+                    document.getElementById('assignmentAllowLate').checked = item.content.allow_late || false;
+                    break;
+                    }
                     }
 
                     contentItemModal.show();
-                }
-            </script>
+                    }
+                    </script>
 </body>
 
 </html>
