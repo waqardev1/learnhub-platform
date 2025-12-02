@@ -695,13 +695,129 @@
         }
 
         async function loadQuizContent(item) {
-            // Quiz content will be loaded in next part
+            const content = item.content || {};
+            const questions = content.questions || [];
+
+            if (questions.length === 0) {
+                document.getElementById('contentArea').innerHTML = `
+                    <div class="text-center py-5">
+                        <h3>Quiz: ${item.title}</h3>
+                        <p class="text-muted">No questions available for this quiz.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const questionsHtml = questions.map((q, index) => {
+                let optionsHtml = '';
+                if (q.type === 'multiple_choice' && q.options) {
+                    optionsHtml = q.options.map((opt, optIndex) => `
+                        <div class="quiz-option" onclick="selectOption(${index}, '${opt.replace(/'/g, "\\'")}', this)">
+                            ${opt}
+                        </div>
+                    `).join('');
+                } else if (q.type === 'true_false') {
+                    optionsHtml = `
+                        <div class="quiz-option" onclick="selectOption(${index}, 'True', this)">True</div>
+                        <div class="quiz-option" onclick="selectOption(${index}, 'False', this)">False</div>
+                    `;
+                } else {
+                    optionsHtml = `
+                        <input type="text" class="form-control mt-2" onchange="selectOption(${index}, this.value, this)" placeholder="Your answer">
+                    `;
+                }
+
+                return `
+                    <div class="question-card" id="question-${index}">
+                        <h5 class="mb-3">${index + 1}. ${q.text} <span class="badge bg-light text-dark float-end">${q.points} pts</span></h5>
+                        <div class="options-container">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
             document.getElementById('contentArea').innerHTML = `
-                <div class="text-center py-5">
-                    <h3>Quiz: ${item.title}</h3>
-                    <p class="text-muted">Quiz functionality coming in next update...</p>
+                <div class="quiz-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">${item.title}</h2>
+                        <div>
+                            <span class="badge bg-primary me-2">Passing Score: ${content.passing_score}%</span>
+                            ${content.time_limit ? `<span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>${content.time_limit} min</span>` : ''}
+                        </div>
+                    </div>
+                    ${item.description ? `<p class="text-muted mb-4">${item.description}</p>` : ''}
+                    
+                    <form id="quizForm">
+                        ${questionsHtml}
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="submitQuiz()">
+                                Submit Quiz
+                            </button>
+                        </div>
+                    </form>
                 </div>
             `;
+
+            // Store current quiz questions for grading
+            window.currentQuizQuestions = questions;
+            window.currentQuizAnswers = {};
+        }
+
+        function selectOption(questionIndex, answer, element) {
+            window.currentQuizAnswers[questionIndex] = answer;
+
+            // Visual feedback for selection
+            if (element.classList.contains('quiz-option')) {
+                const container = element.parentElement;
+                container.querySelectorAll('.quiz-option').forEach(el => el.classList.remove('selected'));
+                element.classList.add('selected');
+            }
+        }
+
+        async function submitQuiz() {
+            if (!window.currentQuizQuestions) return;
+
+            const questions = window.currentQuizQuestions;
+            const answers = window.currentQuizAnswers;
+            let score = 0;
+            let totalPoints = 0;
+            let correctCount = 0;
+
+            // Grade quiz
+            questions.forEach((q, index) => {
+                totalPoints += (q.points || 1);
+                const userAnswer = answers[index];
+
+                // Simple exact match grading
+                if (userAnswer && userAnswer.toLowerCase() === q.correct_answer.toLowerCase()) {
+                    score += (q.points || 1);
+                    correctCount++;
+                    // Mark as correct visually
+                    const card = document.getElementById(`question-${index}`);
+                    if (card) card.classList.add('border-success');
+                } else {
+                    const card = document.getElementById(`question-${index}`);
+                    if (card) card.classList.add('border-danger');
+                }
+            });
+
+            const percentage = Math.round((score / totalPoints) * 100);
+            const passingScore = currentItem.content.passing_score || 70;
+            const passed = percentage >= passingScore;
+
+            let message = `You scored ${percentage}% (${score}/${totalPoints} points). `;
+            message += passed ? 'Congratulations, you passed!' : 'You did not pass. Please try again.';
+
+            if (passed) {
+                window.toast?.success(message);
+                await markAsComplete();
+            } else {
+                window.toast?.error(message);
+            }
+
+            // Scroll to top to see results
+            window.scrollTo(0, 0);
         }
 
         function renderAssignmentContent(item) {
